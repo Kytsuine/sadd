@@ -8,7 +8,6 @@ import json
 import time
 import pandas as pd
 import pickle
-from scipy import interpolate as interp
 import os
 import matplotlib.pyplot as plt
 import numpy as np
@@ -84,11 +83,11 @@ def time_test(func, args=None, n=100):
     print(f"Average time taken for ", str(func), ": ", total/count, "ms\n")
 
 
-# In[8]:
-
-
 def get_players_on_ice(gameID, period, periodTime):
-    
+    if game_shifts = None:
+        global game_shifts
+        game_shifts = build_game_shifts()
+
     # Retrieve the game dataframe corresponding to the gameID
     game_dataframe = game_shifts[gameID]
 
@@ -115,10 +114,16 @@ def get_players_on_ice(gameID, period, periodTime):
     return player_ids
 
 
-# In[12]:
+def get_player_shots(player_id):
 
+    if games_trimmed is None:
+        print("Please build games_trimmed with the build_games_trimmed() function. \nPass the directory your game .json files are saved in as its argument.")
+        return None
 
-def get_player_shots(player_id, player_id_games=player_id_games, games_trimmed=games_trimmed):
+    if player_id_games is None:
+        global player_id_games
+        player_id_games = build_player_id_games()
+
     # Initialize an empty list to store the shots taken when the player was on the ice.
     player_shots = []
 
@@ -146,10 +151,16 @@ def get_player_shots(player_id, player_id_games=player_id_games, games_trimmed=g
     return player_shots
 
 
-# In[13]:
+def get_shots_by_player(player_id):
 
+    if games_trimmed is None:
+        print("Please build games_trimmed with the build_games_trimmed() function. \nPass the directory your game .json files are saved in as its argument.")
+        return None
 
-def get_shots_by_player(player_id, player_id_games=player_id_games, games_trimmed=games_trimmed):
+    if player_id_games is None:
+        global player_id_games
+        player_id_games = build_player_id_games()
+
     # Initialize an empty list to store the shots taken by the player.
     player_shots = []
 
@@ -182,6 +193,19 @@ def get_shots_by_player(player_id, player_id_games=player_id_games, games_trimme
 
 
 def get_player_shots_against(player_id, games_trimmed=games_trimmed, player_id_games=player_id_games, player_teams=player_teams):
+
+    if games_trimmed is None:
+        print("Please build games_trimmed with the build_games_trimmed() function. \nPass the directory your game .json files are saved in as its argument.")
+        return None
+
+    if player_teams is None:
+        global player_teams
+        player_teams = build_player_teams()
+
+    if player_id_games is None:
+        global player_id_games
+        player_id_games = build_player_id_games()
+
     # Initialize an empty list to store the shots taken when the player was on the ice against teams they didn't play for.
     player_shots = []
 
@@ -222,10 +246,16 @@ def get_player_shots_against(player_id, games_trimmed=games_trimmed, player_id_g
     return player_shots
 
 
-# In[15]:
+def get_goal_shot_ratio(player_id, player_shots=None, count=False):
 
+    if games_trimmed is None:
+        print("Please build games_trimmed with the build_games_trimmed() function. \nPass the directory your game .json files are saved in as its argument.")
+        return None
 
-def get_goal_shot_ratio(player_id, games_trimmed=games_trimmed, player_id_games=player_id_games, player_shots=None, count=False):
+    if player_id_games is None:
+        global player_id_games
+        player_id_games = build_player_id_games()
+
     # If player_shots is not provided, retrieve them using the get_player_shots function
     if player_shots is None:
         player_shots = get_player_shots(player_id)
@@ -263,10 +293,19 @@ def get_goal_shot_ratio(player_id, games_trimmed=games_trimmed, player_id_games=
         return (proportion_of_goals)
 
 
-# In[16]:
-
-
 def get_coordinate_goal_shot_ratio_against(player_id, coordinate, games_trimmed=games_trimmed, player_id_games=player_id_games, coordinate_shots=coordinate_shots):
+
+    if games_trimmed is None:
+        print("Please build games_trimmed with the build_games_trimmed() function. \nPass the directory your game .json files are saved in as its argument.")
+        return None
+
+    if coordinate_shots is None:
+        global coordinate_shots
+        coordinate_shots = build_coordinate_shots()
+
+    if player_id_games is None:
+        global player_id_games
+        player_id_games = build_player_id_games()
 
     # Retrieve the player_shots using the get_player_shots function
     player_shots = get_player_shots_against(player_id, player_id_games)
@@ -287,7 +326,20 @@ def get_coordinate_goal_shot_ratio_against(player_id, coordinate, games_trimmed=
 
 
 
-def get_coordinate_goal_shot_ratio(x, y, games_trimmed=games_trimmed, coordinate_shots=coordinate_shots, player_id_games=player_id_games, count=False):
+def get_coordinate_goal_shot_ratio(x, y, count=False):
+
+    if games_trimmed is None:
+        print("Please build games_trimmed with the build_games_trimmed() function. \nPass the directory your game .json files are saved in as its argument.")
+        return None
+
+    if coordinate_shots is None:
+        global coordinate_shots
+        coordinate_shots = build_coordinate_shots()
+
+    if player_id_games is None:
+        global player_id_games
+        player_id_games = build_player_id_games()
+
     # Initialize counters for the number of goals and shots
     goal_count = 0
     shot_count = 0
@@ -324,7 +376,19 @@ def get_coordinate_goal_shot_ratio(x, y, games_trimmed=games_trimmed, coordinate
         return (proportion_of_goals)
 
 
-def get_coordinate_goal_shot_ratio_against(player_id, x, y, player_shots=None, games_trimmed=games_trimmed, player_id_games=player_id_games, coordinate_shots=coordinate_shots):
+def get_coordinate_goal_shot_ratio_against(player_id, x, y, player_shots=None):
+
+    if games_trimmed is None:
+        print("Please build games_trimmed with the build_games_trimmed() function. \nPass the directory your game .json files are saved in as its argument.")
+        return None
+
+    if coordinate_shots is None:
+        global coordinate_shots
+        coordinate_shots = build_coordinate_shots()
+
+    if player_id_games is None:
+        global player_id_games
+        player_id_games = build_player_id_games()
 
     # If player_shots is not provided, retrieve the player_shots using the get_shots_by_player function
     if player_shots is None:
@@ -340,11 +404,23 @@ def get_coordinate_goal_shot_ratio_against(player_id, x, y, player_shots=None, g
     return proportion_of_goals
 
 
-def get_coordinate_goal_shot_ratio_for_player(player_id, x, y, player_shots=None, coordinate_shots=coordinate_shots, player_id_games=player_id_games, games_trimmed=games_trimmed):
-  
+def get_coordinate_goal_shot_ratio_for_player(player_id, x, y, player_shots=None):
+
+    if games_trimmed is None:
+        print("Please build games_trimmed with the build_games_trimmed() function. \nPass the directory your game .json files are saved in as its argument.")
+        return None
+
     # If player_shots is not provided, retrieve the player_shots using the get_shots_by_player function
     if player_shots is None:
         player_shots = get_shots_by_player(player_id, player_id_games)
+
+    if coordinate_shots is None:
+        global coordinate_shots
+        coordinate_shots = build_coordinate_shots()
+
+    if player_id_games is None:
+        global player_id_games
+        player_id_games = build_player_id_games()
 
     # Convert the coordinate_shots and player_shots lists to sets and compute their intersection
     coordinate_player_shots = set(coordinate_shots[(x, y)]) & set(player_shots)
@@ -356,96 +432,20 @@ def get_coordinate_goal_shot_ratio_for_player(player_id, x, y, player_shots=None
     return proportion_of_goals
 
 
-def get_xyz_lists(coordinate_shots=coordinate_shots):
-    x = []
-    y = []
-    z = []
-
-    for coordinate in coordinate_shots:
-        x_coord, y_coord = coordinate
-        x.append(x_coord)
-        y.append(y_coord)
-        z.append(get_coordinate_goal_shot_ratio(x_coord, y_coord))
-
-    return x, y, z
-
-
-def location_shot_pct(x, y, coefs):
-    return interp.bisplev(x, y, coefs)
-
-
-def player_shot_pct(playerID, x, y, player_bisplreps=player_bisplreps):
-    # Retrieve the player's bivariate b-spline representation from the player_bisplreps dictionary
-    coefs = player_bisplreps[playerID]
-
-    # Use the bisplev function from the scipy.interpolate package to evaluate the bivariate b-spline representation at the given (x, y) coordinates
-    shot_pct = interp.bisplev(x, y, coefs)
-
-    return shot_pct
-
-
-# Now that dictionaries have been created, all functions below this line are legacy and used only with refactoring or for reference.
-
-
-def get_player_bisplrep_dict(player_ids=set(player_id_games.keys()), player_coordinates=player_coordinates):
-    # Initialize the dictionary that will store the bisplrep objects
-    player_bisplrep_dict = {}
-    # Iterate through the given player IDs
-    for playerID in player_ids:
-        # Generate a list of x, y, and z values for the player
-        coordinate_ratios = build_single_player_xyz_list(playerID)
-        # Skip players with not enough data points
-        if len(coordinate_ratios[0]) < 20:
-            continue
-        # Fit a bivariate b-spline to the player's data
-        coefs = interp.bisplrep(coordinate_ratios[0], coordinate_ratios[1], coordinate_ratios[2], s=player_bisplrep_optimal_s(coordinate_ratios))
-        # Store the spline in the dictionary
-        player_bisplrep_dict[playerID] = coefs
-    # Return the dictionary of splines
-    return player_bisplrep_dict
-
-
-
-def build_single_player_xyz_list(playerID, player_coordinates=player_coordinates):
-    # Retrieve the player_shots using the get_shots_by_player function
-    player_shots = get_shots_by_player(playerID)
-
-    coordinates_and_z = map(lambda coordinate: (coordinate[0],
-                                            coordinate[1], 
-                                            get_coordinate_goal_shot_ratio_for_player(playerID, 
-                                                                                    coordinate[0], 
-                                                                                    coordinate[1], 
-                                                                                    player_shots=player_shots)[0], 
-                                            get_coordinate_goal_shot_ratio_for_player(playerID, 
-                                                                                    coordinate[0], 
-                                                                                    coordinate[1], 
-                                                                                    player_shots=player_shots)[1]),
-                                            player_coordinates[playerID])
-
-    # Convert the coordinates_and_z iterator to a list
-    coordinates_and_w = list(coordinates_and_z)
-
-    # Check if coordinates_and_z is non-empty
-    if coordinates_and_w:
-        # Unpack the coordinate tuples and z values into separate lists
-        x, y, z, w = zip(*coordinates_and_w)
-    else:
-        # If coordinates_and_w is empty, return empty lists for x, y, and z
-        x, y, z, w = [], [], [], []
-
-    # Return the x, y, and z lists
-    return x, y, z, w
-
-
-def build_player_coordinate_list(player_id_games=player_id_games):
+def build_player_coordinate_list():
+    if player_id_games = None:
+        global player_id_games
+        player_id_games = build_player_id_games()
     # Get a list of player IDs from the player_id_games dictionary
-    player_list = list(player_id_games.keys())
+    if player_id_list = None:
+        global player_id_list
+        player_id_list = build_player_id_list()
 
     # Create an empty dictionary to store player coordinates
     player_coordinates = {}
 
-    # Loop through each player ID in the player_list
-    for playerID in player_list:
+    # Loop through each player ID in the player_id_list
+    for playerID in player_id_list:
         # If the player ID is not in the player_coordinates dictionary, add an empty list for that player
         if playerID not in player_coordinates:
             player_coordinates[playerID] = []
@@ -467,15 +467,16 @@ def build_player_coordinate_list(player_id_games=player_id_games):
     return player_coordinates
 
 
-def get_home_away_teams():
+def build_home_away_teams(directory='.'):
+    json_files = [f for f in os.listdir(directory) if f.endswith('.json')]
     home_away_teams = {}
-
-    # Iterate over the gameIDs in games_trimmed
-    for gameID in games_trimmed:
-        # Open the game file for the current gameID
-        with open(f"games/game_{gameID}.json", "r") as game_file:
-            # Load the data from the game file
-            game_data = json.load(game_file)
+    # Loop through the .json files in the directory
+    for file_name in json_files:
+        # Construct the file path for the current .json file
+        file_path = os.path.join(directory, file_name)
+        # Open the .json file and load the data into a dictionary
+        with open(file_path, encoding='utf-8') as json_file:
+            game_data = json.load(json_file)
 
             # Retrieve the teams data from the game file
             teams = game_data['gameData']['teams']
@@ -488,77 +489,6 @@ def get_home_away_teams():
             home_away_teams[gameID] = (home_triCode, away_triCode)
 
     return home_away_teams
-
-
-def player_bisplrep_optimal_s(coordinate_ratio):
-    # Initialize the x, y, and z values
-    x = coordinate_ratio[0]
-    y = coordinate_ratio[1]
-    z = coordinate_ratio[2]
-
-    # Initialize a list of s values to try
-    s_values = [0.5, 1.0, 5.0, 10.0, 15.0, 20.0, 40.0, 60.0, 80.0, 100.0]
-
-    # Initialize an empty list to store the mean squared errors
-    mse_values = []
-
-    # Iterate over the s values
-    for s in s_values:
-        # Fit a bivariate b-spline to the data using the current s value
-        tck = bisplrep(x, y, z, s=s)
-        # Calculate the mean squared error for the fit
-        mse = calculate_mean_squared_error_bspline(tck, x, y, z)
-        # Append the mean squared error to the mse_values list
-        mse_values.append(mse)
-
-    # Find the index of the minimum mean squared error
-    min_mse_index = mse_values.index(min(mse_values))
-
-    # The optimal s value is the one corresponding to the minimum mean squared error
-    optimal_s = s_values[min_mse_index]
-    return optimal_s
-
-
-def calculate_mean_squared_error_bspline(tck, x, y, z):
-    """
-    Calculate the mean squared error for a bivariate b-spline fit.
-    
-    Parameters
-    ----------
-    tck : tuple
-        The bivariate b-spline fit, as returned by the bisplrep function.
-    x : list
-        The x values of the data.
-    y : list
-        The y values of the data.
-    z : list
-        The z values of the data.
-        
-    Returns
-    -------
-    float
-        The mean squared error for the fit.
-    """
-    # Initialize a variable to store the sum of squared errors
-    sum_squared_errors = 0
-    
-    # Iterate over the x and y values
-    for i, x_val in enumerate(x):
-        for j, y_val in enumerate(y):
-            # Calculate the index for the current x and y values
-            index = i*len(y) + j
-            # Check if the index is within the range of the z values
-            if index < len(z):
-                # Evaluate the b-spline fit at the current x and y values
-                z_pred = bisplev(x_val, y_val, tck)
-                # Calculate the squared error for the current x and y values
-                squared_error = (z[index] - z_pred) ** 2
-                # Add the squared error to the sum
-                sum_squared_errors += squared_error
-            
-    # Calculate and return the mean squared error
-    mean_squared_error = sum_squared_errors / (len(x) * len(y))
-    return mean_squared_error
 
 
 def build_coordinate_shots():
@@ -585,27 +515,6 @@ def build_coordinate_shots():
                 # Add the location (game ID and shot number) for the current shot to the entry in coordinate_shots for the given coordinates
                 coordinate_shots[(x, y)].append((game_id, shot_num))
     return coordinate_shots
-
-
-def build_overall_xyz_list(coordinate_shots=coordinate_shots):
-    global x
-    x = []
-    global y
-    y = []
-    global z
-    z = []
-    global w
-    w = []
-    for coordinate in coordinate_shots:
-        xval = coordinate[0]
-        yval = coordinate[1]
-        gsr = get_coordinate_goal_shot_ratio(xval, yval, count=True)
-        z.append(gsr[0])
-        w.append(gsr[1])
-        x.append(xval)
-        y.append(yval)
-    # Return the x, y, z, and w lists
-    return x, y, z, w
 
 
 def build_game_shifts(yearStart, yearEnd):
@@ -651,7 +560,10 @@ def build_game_shifts(yearStart, yearEnd):
                 else:
                     pass
 
-def get_player_teams(player_id):
+def get_single_player_teams(player_id):
+    if games_trimmed == None:
+        print("Please build games_trimmed with the build_games_trimmed() function. \nPass the directory your game .json files are saved in as its argument.")
+        return None
     # Initialize an empty dictionary to store the teams a player has played for in each year
     teams_playerID = {}
 
@@ -679,9 +591,12 @@ def get_player_teams(player_id):
 
 
 def get_single_player_games(player_id):
-     if player_teams == None:
-        player_teams = {}
-        player_teams[player_id] = get_player_teams(player_id)
+    if player_teams == None:
+        games_playerID = {}
+        games_playerID[player_id] = get_single_player_teams(player_id)
+    else:
+        games_playerID = {}
+        games_playerID[player_id] = player_teams[player_id]
     if team_games == None:
         global team_games
         team_games = build_team_games()
@@ -689,28 +604,32 @@ def get_single_player_games(player_id):
         # Iterate over the triCodes in the list of triCodes for that year
         for triCode in triCodes:
             # Check if the year already exists as a key in the player_id_games dictionary for the current player_id
-            if year not in player_games:
+            if year not in games_playerID:
                 # If the year does not exist as a key, initialize an empty list for that year as the value of the key
-                player_games[year] = []
+                games_playerID[year] = []
 
             # Append the gameIDs for the triCode to the list of games for that year in the player_id_games dictionary for the current player_id
-            player_games[year] += team_games[triCode][year]
-    return player_games
+            games_playerID[year] += team_games[triCode][year]
+    return games_playerID
 
 
-def get_player_games():
-    if player_teams == None:
-        if player_id_list == None:
+def build_player_teams():
+    if player_id_list == None:
             global player_id_list
             player_id_list = build_player_id_list()
+    player_teams = {}
+    for player in player_id_list:
+            player_teams[player] = get_single_player_teams(player)
+    return player_teams
+
+
+def build_player_id_games():
+    if player_teams == None:
         global player_teams
-        player_teams = {}
-        for player in player_id_list:
-            player_teams[player] = get_player_teams(player)
+        player_teams = build_player_teams()
     if team_games=None:
         global team_games
         team_games = build_team_games()
-
 
     # Initialize an empty dictionary to store the games a player has played in each year
     player_id_games = {}
