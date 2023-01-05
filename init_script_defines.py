@@ -45,8 +45,6 @@ with open('./data/player_coordinates.pkl', 'rb') as f:
 
 
 def get_game_year(gameID):
-    print("get_game_year()", end="\r")
-    print("get_coordinate_goal_shot_ratio_for_player()")
     # Divide the gameID by 1,000,000 to retrieve the year in which the game was played
     game_year = gameID // 1000000
     
@@ -83,8 +81,6 @@ def time_test(func, args=None, n=100):
 
 
 def get_players_on_ice(gameID, period, periodTime, game_shifts=None, directory='.'):
-    print("get_players_on_ice()", end="\r")
-    print("get_coordinate_goal_shot_ratio_for_player()")
     if game_shifts == None:
         game_shifts = build_game_shifts(directory=directory) # Change those numbers to your relevant years! Working on a way to do that automagically...
 
@@ -116,7 +112,6 @@ def get_players_on_ice(gameID, period, periodTime, game_shifts=None, directory='
 
 def get_player_shots(player_id, games_trimmed=None, player_id_set=None, player_teams=None, team_set=None, team_games=None, player_id_games=None):
     print("get_player_shots()", end="\r")
-    print("get_coordinate_goal_shot_ratio_for_player()")
     if games_trimmed is None:
         print("Please build games_trimmed with the build_games_trimmed() function. \nPass the directory your game .json files are saved in as its argument.")
         return None
@@ -160,7 +155,6 @@ def get_player_shots(player_id, games_trimmed=None, player_id_set=None, player_t
 
 def get_shots_by_player(player_id, games_trimmed=None, player_id_set=None, player_teams=None, team_set=None, team_games=None, player_id_games=None):
     print("get_shots_by_player()", end="\r")
-    print("get_coordinate_goal_shot_ratio_for_player()")
     if games_trimmed is None:
         print("Please build games_trimmed with the build_games_trimmed() function. \nPass the directory your game .json files are saved in as its argument.")
         return None
@@ -208,7 +202,6 @@ def get_shots_by_player(player_id, games_trimmed=None, player_id_set=None, playe
 
 def get_player_shots_against(player_id, games_trimmed=None, player_id_set=None, player_teams=None, team_set=None, team_games=None, player_id_games=None):
     print("get_player_shots_against()", end="\r")
-    print("get_coordinate_goal_shot_ratio_for_player()")
     if games_trimmed is None:
         print("Please build games_trimmed with the build_games_trimmed() function. \nPass the directory your game .json files are saved in as its argument.")
         return None
@@ -266,7 +259,6 @@ def get_player_shots_against(player_id, games_trimmed=None, player_id_set=None, 
 
 def get_goal_shot_ratio(player_id, player_shots=None, count=False, games_trimmed=None, player_id_set=None, player_teams=None, team_set=None, team_games=None, player_id_games=None):
     print("get_goal_shot_ratio()", end="\r")
-    print("get_coordinate_goal_shot_ratio_for_player()")
     if games_trimmed is None:
         print("Please build games_trimmed with the build_games_trimmed() function. \nPass the directory your game .json files are saved in as its argument.")
         return None
@@ -321,7 +313,6 @@ def get_goal_shot_ratio(player_id, player_shots=None, count=False, games_trimmed
 
 def get_coordinate_goal_shot_ratio_against(player_id, coordinate, games_trimmed=None, coordinate_shots=None, player_id_set=None, player_teams=None, team_set=None, team_games=None, player_id_games=None):
     print("get_coordinate_goal_shot_ratio_against()", end="\r")
-    print("get_coordinate_goal_shot_ratio_for_player()")
     if games_trimmed is None:
         print("Please build games_trimmed with the build_games_trimmed() function. \nPass the directory your game .json files are saved in as its argument.")
         return None
@@ -359,7 +350,6 @@ def get_coordinate_goal_shot_ratio_against(player_id, coordinate, games_trimmed=
 
 def get_coordinate_goal_shot_ratio(x, y, count=False, games_trimmed=None, coordinate_shots=None, player_id_set=None, player_teams=None, team_set=None, team_games=None, player_id_games=None):
     print("get_coordinate_goal_shot_ratio()", end="\r")
-    print("get_coordinate_goal_shot_ratio_for_player()")
     if games_trimmed is None:
         print("Please build games_trimmed with the build_games_trimmed() function. \nPass the directory your game .json files are saved in as its argument.")
         return None
@@ -414,7 +404,6 @@ def get_coordinate_goal_shot_ratio(x, y, count=False, games_trimmed=None, coordi
 
 def get_coordinate_goal_shot_ratio_against(player_id, x, y, games_trimmed=None, coordinate_shots=None, player_id_set=None, player_teams=None, team_set=None, team_games=None, player_id_games=None, player_shots=None):
     print("get_coordinate_goal_shot_ratio_against()", end="\r")
-    print("get_coordinate_goal_shot_ratio_for_player()")
     if games_trimmed is None:
         print("Please build games_trimmed with the build_games_trimmed() function. \nPass the directory your game .json files are saved in as its argument.")
         return None
@@ -447,7 +436,6 @@ def get_coordinate_goal_shot_ratio_against(player_id, x, y, games_trimmed=None, 
 
 def get_coordinate_goal_shot_ratio_for_player(player_id, x, y, games_trimmed=None, player_id_set=None, player_teams=None, team_set=None, team_games=None, player_id_games=None, player_shots=None, coordinate_shots=None):
     print("get_coordinate_goal_shot_ratio_for_player()", end="\r")
-    print("get_coordinate_goal_shot_ratio_for_player()")
     if games_trimmed is None:
         print("Please build games_trimmed with the build_games_trimmed() function. \nPass the directory your game .json files are saved in as its argument.")
         return None
@@ -480,7 +468,6 @@ def get_coordinate_goal_shot_ratio_for_player(player_id, x, y, games_trimmed=Non
 
 def build_player_coordinate_list(player_id_set=None, player_teams=None, team_set=None, team_games=None, player_id_games=None):
     print("build_player_coordinate_list()")
-    print("get_coordinate_goal_shot_ratio_for_player()")
     if player_id_set is None:
         player_id_set = build_player_id_set(games_trimmed=games_trimmed)
     if player_teams is None:
@@ -520,7 +507,6 @@ def build_player_coordinate_list(player_id_set=None, player_teams=None, team_set
 
 def build_home_away_teams(directory='.'):
     print("build_home_away_teams()")
-    print("get_coordinate_goal_shot_ratio_for_player()")
     json_files = [f for f in os.listdir(directory) if f.endswith('.json')]
     home_away_teams = {}
     # Loop through the .json files in the directory
@@ -546,7 +532,6 @@ def build_home_away_teams(directory='.'):
 
 def build_coordinate_shots(games_trimmed=None):
     print("build_coordinate_shots()")
-    print("get_coordinate_goal_shot_ratio_for_player()")
     if games_trimmed == None:
         print("Please build games_trimmed with the build_games_trimmed() function. \nPass the directory your game .json files are saved in as its argument.")
         return None
@@ -574,7 +559,6 @@ def build_coordinate_shots(games_trimmed=None):
 
 def build_game_shifts(directory='.'):
     print("build_game_shifts()")
-    print("get_coordinate_goal_shot_ratio_for_player()")
     # Initialize an empty dictionary to store data for each game
     game_shifts = {}
     
@@ -628,7 +612,6 @@ def build_game_shifts(directory='.'):
 
 def get_single_player_teams(player_id, games_trimmed=None):
     print("get_single_player_teams()", end="\r")
-    print("get_coordinate_goal_shot_ratio_for_player()")
     if games_trimmed == None:
         print("Please build games_trimmed with the build_games_trimmed() function. \nPass the directory your game .json files are saved in as its argument.")
         return None
@@ -660,7 +643,6 @@ def get_single_player_teams(player_id, games_trimmed=None):
 
 def get_single_player_games(player_id, games_trimmed=None, player_id_set=None, player_teams=None, team_set=None, team_games=None):
     print("get_single_player_games()", end="\r")
-    print("get_coordinate_goal_shot_ratio_for_player()")
     if player_id_set is None:
         player_id_set = build_player_id_set(games_trimmed=games_trimmed)
     if player_teams is None:
@@ -685,7 +667,6 @@ def get_single_player_games(player_id, games_trimmed=None, player_id_set=None, p
 
 def build_player_teams(games_trimmed=None, player_id_set=None):
     print("build_player_teams()")
-    print("get_coordinate_goal_shot_ratio_for_player()")
     if games_trimmed is None:
         print("Please build games_trimmed with the build_games_trimmed() function. \nPass the directory your game .json files are saved in as its argument.")
         return None
@@ -699,7 +680,6 @@ def build_player_teams(games_trimmed=None, player_id_set=None):
 
 def build_player_id_games(games_trimmed=None, player_id_set=None, player_teams=None, team_set=None, team_games=None):
     print("build_player_id_games()")
-    print("get_coordinate_goal_shot_ratio_for_player()")
     if games_trimmed is None:
         print("Please build games_trimmed with the build_games_trimmed() function. \nPass the directory your game .json files are saved in as its argument.")
         return None
@@ -726,7 +706,6 @@ def build_player_id_games(games_trimmed=None, player_id_set=None, player_teams=N
 
 def build_player_id_set(games_trimmed=None):
     print("build_player_id_set()")
-    print("get_coordinate_goal_shot_ratio_for_player()")
     if games_trimmed == None:
         print("Please build games_trimmed with the build_games_trimmed() function.\nPass the directory your game .json files are saved in as its argument.")
         return None
@@ -739,7 +718,6 @@ def build_player_id_set(games_trimmed=None):
 
 def build_team_set(games_trimmed=None):
     print("build_team_set()")
-    print("get_coordinate_goal_shot_ratio_for_player()")
     if games_trimmed is None:
         print("Please build games_trimmed with the build_games_trimmed() function.\nPass the directory your game .json files are saved in as its argument.")
         return None
@@ -752,7 +730,6 @@ def build_team_set(games_trimmed=None):
 
 def build_team_games(games_trimmed=None, team_set=None):
     print("build_team_games()")
-    print("get_coordinate_goal_shot_ratio_for_player()")
     if games_trimmed is None:
         print("Please build games_trimmed with the build_games_trimmed() function.\nPass the directory your game .json files are saved in as its argument.")
         return None
@@ -771,20 +748,20 @@ def get_single_team_games(triCode, games_trimmed=None):
         return None
     # Initialize an empty dictionary to store the teams a player has played for in each year
     games_teamID = {}
-	progress = 0
-	length = 80
-	gtlength = len(games_trimmed)
+    progress = 0
+    length = 80
+    gtlength = len(games_trimmed)
     # Iterate over the shot dictionaries in the games_trimmed dictionary
     for gameID, game_dict in games_trimmed.items():
-    	progress += 1
-    	print("[", "="*((progress*length)//gtlength), " "*(length-((progress*length)//gtlength)), "] Current game:", gameID, end="\r", flush=True)
+        progress += 1
+        print("[", "="*((progress*length)//gtlength), " "*(length-((progress*length)//gtlength)), "] Current game:", gameID, end="\r", flush=True)
         for shot in game_dict.values():
             # Retrieve the player_id, year, and triCode for the current shot
             game_triCode = shot['team']['triCode']
 
             # Check if the player_id matches the input player_id
             if game_triCode == triCode:
-            	year = get_game_year(gameID)
+                year = get_game_year(gameID)
                 # Check if the year already exists as a key in the teams_playerID dictionary
                 if year not in games_teamID:
                     # If the year does not exist as a key, initialize an empty list for that year as the value of the key
@@ -808,8 +785,8 @@ def build_games_trimmed(directory='.'):
     jflength = len(json_files)
     # Loop through the .json files in the directory
     for file_name in json_files:
-    	progress += 1
-    	print("[", "="*((progress*length)//jflength), " "*(length-((progress*length)//jflength)), "] Current gamefile:", file_name, end="\r", flush=True)
+        progress += 1
+        print("[", "="*((progress*length)//jflength), " "*(length-((progress*length)//jflength)), "] Current gamefile:", file_name, end="\r\r\r", flush=True)
         # Construct the file path for the current .json file
         file_path = os.path.join(directory, file_name)
         # Open the .json file and load the data into a dictionary
@@ -915,13 +892,14 @@ def get_player_avg_pct_counts_and_groups(playerID, games_trimmed=None, coordinat
             weighted_shots[(x, y)].append((gameID, shot))
     wslength = len(weighted_shots)
     for (x, y) in weighted_shots:
-    	progress += 1
-    	print("[", "="*((progress*length)//wslength), " "*(length-((progress*length)//wslength)), "] - Current coordinate:", x, y, "Current player:", playerID, end="\r", flush=True)
+        progress += 1
+        print("[", "="*((progress*length)//wslength), " "*(length-((progress*length)//wslength)), "] - Current coordinate:", x, y, "Current player:", playerID, end="\r", flush=True)
         group_ratio = get_goal_shot_ratio(playerID, player_shots=weighted_shots[(x, y)], count=1)
         total_ratio += group_ratio[0] * len(weighted_shots[(x, y)])
         total_weight += len(weighted_shots[(x, y)])
         group_dict[(x, y)] = group_ratio
     return (total_ratio / total_weight, group_dict)
+
 
 
 def get_player_avg_pct_and_groups(playerID, games_trimmed=None, coordinate_shots=None, player_id_set=None, player_teams=None, team_set=None, team_games=None, player_id_games=None, grouped_data=None, player_shots=None):
@@ -950,17 +928,11 @@ def get_player_avg_pct_and_groups(playerID, games_trimmed=None, coordinate_shots
     group_dict = {}
     total_ratio = 0
     total_weight = 0
-    progress = 0
-    length = 60
     for gameID, shot in player_shots:
-    	print("get_player_avg_pct_and_groups(): Weighting shots", end="\r", flush=True)
         x, y = get_shot_grouped_coordinates(gameID, shot, games_trimmed=games_trimmed)
         for _ in range(1, 850):
             weighted_shots[(x, y)].append((gameID, shot))
-    wslength = len(weighted_shots)
     for (x, y) in weighted_shots:
-    	progress += 1
-    	print("[", "="*((progress*length)//wslength), " "*(length-((progress*length)//wslength)), "] - Current coordinate:", x, y, "Current player:", playerID, end="\r", flush=True)
         group_ratio = get_goal_shot_ratio(playerID, player_shots=weighted_shots[(x, y)], count=False, games_trimmed=games_trimmed, player_id_set=player_id_set, player_teams=player_teams, team_set=team_set, team_games=team_games, player_id_games=player_id_games)
         total_ratio += group_ratio * len(weighted_shots[(x, y)])
         total_weight += len(weighted_shots[(x, y)])
@@ -1004,10 +976,10 @@ def build_player_pcts_and_groups(games_trimmed=None, player_id_set = None, playe
     length = 80
     progress = 0
     psetlength = len(player_id_set)
-    print("build_player_pcts_and_groups():	 Building dictionary for players")
+    print("build_player_pcts_and_groups(): Building dictionary for players")
     for player in player_id_set:
-    	progress += 1
-    	print("[", "="*((progress*length)//psetlength), " "*(length-((progress*length)//psetlength)), "] - Current player:", player, end="\r")
+        progress += 1
+        print("[", "="*((progress*length)//psetlength), " "*(length-((progress*length)//psetlength)), "] - Current player:", player, end="\r")
         player_pcts[player] = get_player_avg_pct_and_groups(player, games_trimmed=games_trimmed, coordinate_shots=coordinate_shots, player_id_set=player_id_set, player_teams=player_teams, team_set=team_set, team_games=team_games, player_id_games=player_id_games, grouped_data=grouped_data)
     return player_pcts
 
@@ -1016,7 +988,7 @@ def get_shot_shooter(gameID, shotID, games_trimmed=None):
     if games_trimmed is None:
         print("Please build games_trimmed with the build_games_trimmed() function. \nPass the directory your game .json files are saved in as its argument.")
         return None
-    return games_trimmed[gameID][shotID]['players']['0']['player']['id']
+    return games_trimmed[gameID][shotID]['players'][0]['player']['id']
 
 
 def get_shot_pct(gameID, shotID, games_trimmed=None, player_id_set=None, player_teams=None, team_set=None, team_games=None, player_id_games=None, coordinate_shots=None, grouped_data=None, player_pcts_and_groups=None):
@@ -1076,7 +1048,7 @@ def get_shot_time(gameID, shotID, games_trimmed=None):
 
 
 def build_sadd(games_trimmed=None, directory='.', game_shifts=None, player_id_set=None, player_teams=None, team_set=None, team_games=None, player_id_games=None, coordinate_shots=None, grouped_data=None, player_pcts_and_groups=None):
-    print("build_sadd():				 Checking definitions of initial dictionaries@")
+    print("build_sadd(): Checking definitions of initial dictionaries", flush=True)
     if games_trimmed is None:
         print("Caution! Assuming game data is stored in the games subdirectory of the current working directory.\nIf this is not accurate, please call build_games_trimmed() with the correct diretory.")
         games_trimmed = build_games_trimmed('./games/')
@@ -1102,25 +1074,54 @@ def build_sadd(games_trimmed=None, directory='.', game_shifts=None, player_id_se
     progress = 0
     gtlength = len(games_trimmed)
     length = 80
-    print("build_sadd():				 Building SADD initial dictionary            ", end="\r")
+    print("build_sadd(): Building SADD initial dictionary", end="\r", flush=True)
     for player in player_id_set:
         sadd[player] = {}
         sadd[player]['pct_diff_total'] = 0
         sadd[player]['sadd_events'] = 0
         sadd[player]['sadd'] = 0
-    print("build_sadd(): Building SADD dictionary for games.                         ")
+    print("build_sadd(): Building SADD dictionary for games.", flush=True)
     for gameID, gameDict in games_trimmed.items():
-    	progress += 1
-    	print("[", "="*((progress*length)//gtlength), " "*(length-((progress*length)//gtlength)), "] - Current game:", gameID, end="\r")
-        period, time = get_shot_time(gameID, shotID, games_trimmed=games_trimmed)
-        playerList = get_players_on_ice(gameID, period, time, game_shifts=game_shifts)
-        shotPct = get_shot_pct(gameID, shotID, games_trimmed=games_trimmed, player_id_set=player_id_set, player_teams=player_teams, team_set=team_set, team_games=team_games, player_id_games=player_id_games, grouped_data=grouped_data, player_pcts_and_groups=player_pcts_and_groups)
-        shooterPct = get_shooter_pct(gameID, shotID, games_trimmed=games_trimmed, player_id_set=player_id_set, player_teams=player_teams, team_set=team_set, team_games=team_games, player_id_games=player_id_games, grouped_data=grouped_data, player_pcts_and_groups=player_pcts_and_groups)
-        for player in playerList:
-            sadd[player]['pct_diff_total'] += (shooterPct - shotPct)
-            sadd[player]['sadd_events'] += 1
-            sadd[player]['sadd'] = sadd[player]['pct_diff_total']/sadd[player]['sadd_events']
+        progress += 1
+        print("[", "="*((progress*length)//gtlength), " "*(length-((progress*length)//gtlength)), "] - Current game:", gameID, end="\r")
+        for shotID in gameDict.keys():
+            period, time = get_shot_time(gameID, shotID, games_trimmed=games_trimmed)
+            playerList = get_players_on_ice(gameID, period, time, game_shifts=game_shifts)
+            shooter = get_shot_shooter(gameID, shotID, games_trimmed=games_trimmed)
+            shotYear = get_game_year(gameID)
+            defenseSet = get_opposing_players(shooter, playerList, shotYear, player_teams=player_teams, games_trimmed=games_trimmed, player_id_set=player_id_set)
+            shotPct = get_shot_pct(gameID, shotID, games_trimmed=games_trimmed, player_id_set=player_id_set, player_teams=player_teams, team_set=team_set, team_games=team_games, player_id_games=player_id_games, coordinate_shots=coordinate_shots, grouped_data=grouped_data, player_pcts_and_groups=player_pcts_and_groups)
+            shooterPct = get_shooter_pct(gameID, shotID, games_trimmed=games_trimmed, player_id_set=player_id_set, player_teams=player_teams, team_set=team_set, team_games=team_games, player_id_games=player_id_games, coordinate_shots=coordinate_shots, grouped_data=grouped_data, player_pcts_and_groups=player_pcts_and_groups)
+            for player in defenseSet:
+                if player not in sadd:
+                    sadd[player] = {}
+                    sadd[player]['pct_diff_total'] = 0
+                    sadd[player]['sadd_events'] = 0
+                    sadd[player]['sadd'] = 0
+                sadd[player]['pct_diff_total'] += (shooterPct - shotPct)
+                sadd[player]['sadd_events'] += 1
+                sadd[player]['sadd'] = sadd[player]['pct_diff_total']/sadd[player]['sadd_events']
     return sadd
+
+def get_opposing_players(player, playerList, year, player_teams=None, games_trimmed=None, player_id_set=None):
+    if games_trimmed is None:
+        print("Caution! Assuming game data is stored in the games subdirectory of the current working directory.\nIf this is not accurate, please call build_games_trimmed() with the correct diretory.")
+        games_trimmed = build_games_trimmed('./games/')
+    if player_id_set is None:
+        player_id_set = build_player_id_set(games_trimmed=games_trimmed)
+    if player_teams is None:
+        player_teams=build_player_teams(games_trimmed=games_trimmed, player_id_set=player_id_set)
+    defenseSet = set()
+    teams = set(player_teams[player][year])
+    for item in playerList:
+        if item not in player_teams:
+            continue
+        if year not in player_teams[item]:
+            continue
+        if len(set(player_teams[item][year]).intersection(teams)) == 0:
+            defenseSet.add(item)
+    return defenseSet
+
 
 
 
