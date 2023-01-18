@@ -79,17 +79,73 @@ def time_test(func, args=None, n=100):
     # Calculate and print the average time taken
     print(f"Average time taken for ", str(func), ": ", total/count, "ms\n")
 
-
-def get_players_on_ice(gameID, period, periodTime, game_shifts=None, directory='.'):
-    if game_shifts == None:
-        game_shifts = build_game_shifts(directory=directory) # Change those numbers to your relevant years! Working on a way to do that automagically...
-
-    # Retrieve the game dataframe corresponding to the gameID
-    game_dataframe = game_shifts[gameID]
-
+def get_home_on_ice(gameID, period, periodTime, game_shifts=None, directory='.'):
     # Check that the period is within the range of 1-3. If not, return a null value.
     if period not in range(1,4):
         return None
+
+    if game_shifts == None:
+        game_shifts = build_game_shifts(directory=directory) # Make sure to pass the right directory if you don't pass game_shifts. 
+    
+    # Retrieve the game dataframe corresponding to the gameID
+    game_dict = game_shifts[gameID][home]
+
+    # Identify the period of the shot to find the corresponding shifts_n column
+    period_dict = "period" + str(period)
+
+    # Initialize an empty list to store the player_ids for players on the ice
+    player_ids = []
+
+    # Loop through each row in the game dataframe
+    for player in game_dict:
+        # Retrieve the shift tuples for the current player
+        shift_tuples = player[period_dict]
+
+        # Check which players had a shift time tuple that includes periodTime
+        for shift_tuple in shift_tuples:
+            if shift_tuple[0] < periodTime <= shift_tuple[1]:
+                player_ids.append(row['player_id'])
+    return player_ids
+
+def get_away_on_ice(gameID, period, periodTime, game_shifts=None, directory='.'):
+    # Check that the period is within the range of 1-3. If not, return a null value.
+    if period not in range(1,4):
+        return None
+
+    if game_shifts == None:
+        game_shifts = build_game_shifts(directory=directory) # Make sure to pass the right directory if you don't pass game_shifts. 
+    
+    # Retrieve the game dataframe corresponding to the gameID
+    game_dict = game_shifts[gameID][away]
+
+    # Identify the period of the shot to find the corresponding shifts_n column
+    period_dict = "period" + str(period)
+
+    # Initialize an empty list to store the player_ids for players on the ice
+    player_ids = []
+
+    # Loop through each row in the game dataframe
+    for player in game_dict:  
+        # Retrieve the shift tuples for the current player
+        shift_tuples = player[period_dict]
+
+        # Check which players had a shift time tuple that includes periodTime
+        for shift_tuple in shift_tuples:
+            if shift_tuple[0] < periodTime <= shift_tuple[1]:
+                player_ids.append(row['player_id'])
+
+    return player_ids
+
+def get_players_on_ice(gameID, period, periodTime, game_shifts=None, directory='.'):
+    # Check that the period is within the range of 1-3. If not, return a null value.
+    if period not in range(1,4):
+        return None
+
+    if game_shifts == None:
+        game_shifts = build_game_shifts(directory=directory) # Make sure to pass the right directory if you don't pass game_shifts. 
+    
+    # Retrieve the game dataframe corresponding to the gameID
+    game_dataframe = game_shifts[gameID]
 
     # Identify the period of the shot to find the corresponding shifts_n column
     shift_column = "shifts_" + str(period)
