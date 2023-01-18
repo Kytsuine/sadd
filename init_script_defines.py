@@ -557,28 +557,35 @@ def build_coordinate_shots(games_trimmed=None):
     return coordinate_shots
 
 
-def build_game_shifts(directory='.'):
+def build_game_shifts(directory='.', home_away_teams=None):
     print("build_game_shifts()")
+    if home_away_teams == None:
+        print("Please build home_away_teams with the build_home_away_teams() function.\nPass the directory your game .json files are saved in as its argument.")
+        return None
     # Initialize an empty dictionary to store data for each game
+    json_files = [f for f in os.listdir(directory) if f.endswith('.json')]
     game_shifts = {}
-    
+    progress = 0
+    length = 80
+    jflength = len(json_files)
     # Iterate over the files in the directory
-    for file in os.listdir(directory):
+    for file in json_files:
         # Extract the gameID from the file name
         gameID = int(file.split('_')[1].split('.')[0])
+        progress += 1
+        print("[", "="*((progress*length)//jflength), " "*(length-((progress*length)//jflength)), "] Current gamefile:", file_name, end="\r", flush=True)
         # Create an empty DataFrame for the current game
-        game_shifts[gameID] = pd.DataFrame()
-        # Add empty columns for player information and shift data
-        game_shifts[gameID]['player_id'] = ''
-        game_shifts[gameID]['player_first'] = ''
-        game_shifts[gameID]['player_last'] = ''
-        game_shifts[gameID]['shifts_1'] = ''
-        game_shifts[gameID]['shifts_2'] = ''
-        game_shifts[gameID]['shifts_3'] = ''
+        game_shifts[gameID] = {}
+        game_shifts[gameID][home] = {}
+        game_shifts[gameID][away] = {}
+        game_shifts[gameID][home][triCode] = home_away_teams[gameID][0]
+        game_shifts[gameID][away][triCode] = home_away_teams[gameID][1]
+        game_shifts[gameID][home][players] = {}
+        game_shifts[gameID][away][players] = {}
+        
         # Read in the data from the .json file
         with open(os.path.join(directory, file), 'r') as f:
             data = json.loads(f.read())
-        print(gameID, end="\r")
         # Loop over the data list and add each shift to the DataFrame
         for k in data:
             # Check if the shift is from a period 1, 2, or 3, and if it
@@ -587,6 +594,19 @@ def build_game_shifts(directory='.'):
                 continue
             for i in range(0, len(data[k])-1):
                 if data[k][i]['period'] <= 3 and data[k][i]['playerId'] != None:
+                    playerID = data[k][i]['playerId']
+                    if data[k][i]['teamAbbrev'] = game_shifts[gameID][home][triCode]:
+                        if playerID in game_shifts[gameID][home][players]:
+                            player_dict = game_shifts[gameID][home][players][playerID]
+                        else:
+                            game_shifts[gameID][home][players][playerID] = {}
+                            player_dict = game_shifts[gameID][home][players][playerID]
+                    else:
+                        if playerID in game_shifts[gameID][away][players]:
+                            player_dict = game_shifts[gameID][away][players][playerID]
+                        else:
+                            game_shifts[gameID][away][players][playerID] = {}
+                            player_dict = game_shifts[gameID][away][players][playerID]
                     if data[k][i]['playerId'] in list(game_shifts[gameID]['player_id']):
                         # Find the index of the row where the player_id matches data[k][i]['playerId']
                         player_index = game_shifts[gameID].index[game_shifts[gameID]['player_id'] == data[k][i]['playerId']].tolist()[0]
@@ -786,7 +806,7 @@ def build_games_trimmed(directory='.'):
     # Loop through the .json files in the directory
     for file_name in json_files:
         progress += 1
-        print("[", "="*((progress*length)//jflength), " "*(length-((progress*length)//jflength)), "] Current gamefile:", file_name, end="\r\r\r", flush=True)
+        print("[", "="*((progress*length)//jflength), " "*(length-((progress*length)//jflength)), "] Current gamefile:", file_name, end="\r", flush=True)
         # Construct the file path for the current .json file
         file_path = os.path.join(directory, file_name)
         # Open the .json file and load the data into a dictionary
