@@ -582,7 +582,6 @@ def build_game_shifts(directory='.', home_away_teams=None):
         game_shifts[gameID][away][triCode] = home_away_teams[gameID][1]
         game_shifts[gameID][home][players] = {}
         game_shifts[gameID][away][players] = {}
-        
         # Read in the data from the .json file
         with open(os.path.join(directory, file), 'r') as f:
             data = json.loads(f.read())
@@ -601,30 +600,27 @@ def build_game_shifts(directory='.', home_away_teams=None):
                         else:
                             game_shifts[gameID][home][players][playerID] = {}
                             player_dict = game_shifts[gameID][home][players][playerID]
+                            player_dict[playerName] = str(data[k][i][firstName] + " " + data[k][i][lastName])
+                            player_dict[period1] = set()
+                            player_dict[period2] = set()
+                            player_dict[period3] = set()
                     else:
                         if playerID in game_shifts[gameID][away][players]:
                             player_dict = game_shifts[gameID][away][players][playerID]
                         else:
                             game_shifts[gameID][away][players][playerID] = {}
                             player_dict = game_shifts[gameID][away][players][playerID]
-                    if data[k][i]['playerId'] in list(game_shifts[gameID]['player_id']):
-                        # Find the index of the row where the player_id matches data[k][i]['playerId']
-                        player_index = game_shifts[gameID].index[game_shifts[gameID]['player_id'] == data[k][i]['playerId']].tolist()[0]
-                        # Select the row at the player_index
-                        player_row = game_shifts[gameID].iloc[[player_index]]
-                        # Select the 'shifts_'+str(data[k][i]['period']) column from the player_row
-                        shift_column = player_row['shifts_'+str(data[k][i]['period'])]
-                        # Append the start and end times to the shift_column
-                        shift_column[player_index].append((data[k][i]['startTime'],data[k][i]['endTime']))
+                            player_dict[playerName] = str(data[k][i][firstName] + " " + data[k][i][lastName])
+                            player_dict[period1] = set()
+                            player_dict[period2] = set()
+                            player_dict[period3] = set()
+                    shift_period = data[k][i]['period']
+                    if shift_period == 1:
+                        player_dict[period1].add((data[k][i]['startTime'], data[k][i]['endTime']))
+                    elif shift_period == 2:
+                        player_dict[period2].add((data[k][i]['startTime'], data[k][i]['endTime']))
                     else:
-                        game_shifts[gameID].loc[len(game_shifts[gameID])] = [data[k][i]['playerId'], data[k][i]['firstName'], data[k][i]['lastName'], [], [], []]
-                        # Find the index of the row where the player_id matches data[k][i]['playerId']
-                        player_index = game_shifts[gameID].index[game_shifts[gameID]['player_id'] == data[k][i]['playerId']].tolist()[0]
-                        # Select the row at the player_index
-                        player_row = game_shifts[gameID].iloc[[player_index]]
-                        # Select the 'shifts_'+str(data[k][i]['period']) column from the player_row
-                        shift_column = player_row['shifts_'+str(data[k][i]['period'])]
-                        # Append the start and end times to the shift_column
+                        player_dict[period3].add((data[k][i]['startTime'], data[k][i]['endTime']))
                         shift_column[player_index].append((data[k][i]['startTime'],data[k][i]['endTime']))
                 else:
                     pass
