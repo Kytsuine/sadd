@@ -747,6 +747,39 @@ def build_coordinate_shots(games_trimmed=None):
 
 
 def build_game_shifts(directory='.', home_away_teams=None):
+    """
+    The function build_game_shifts() reads in .json files from the specified directory, extracts shift data from them, and organizes the data into a nested dictionary.
+    The nested dictionary has the following structure:
+    {
+        game_id: {
+            home: {
+                triCode: 'XXX',
+                players: {
+                    player_id: {
+                        playerName: 'Firstname Lastname',
+                        period1: set([(start_time, end_time), ...]),
+                        period2: set([(start_time, end_time), ...]),
+                        period3: set([(start_time, end_time), ...]),
+                    },
+                    ...
+                },
+            },
+            away: {
+                triCode: 'XXX',
+                players: {
+                    player_id: {
+                        playerName: 'Firstname Lastname',
+                        period1: set([(start_time, end_time), ...]),
+                        period2: set([(start_time, end_time), ...]),
+                        period3: set([(start_time, end_time), ...]),
+                    },
+                    ...
+                },
+            },
+        },
+        ...
+    }
+    """
     print("build_game_shifts()")
     if home_away_teams == None:
         print("Please build home_away_teams with the build_home_away_teams() function.\nPass the directory your game .json files are saved in as its argument.")
@@ -781,12 +814,16 @@ def build_game_shifts(directory='.', home_away_teams=None):
             if type(data[k]) != list:
                 continue
             for i in range(0, len(data[k])-1):
+                # Check if the current shift is in the first 3 periods and the player is not None
                 if data[k][i]['period'] <= 3 and data[k][i]['playerId'] != None:
                     playerID = data[k][i]['playerId']
+                    # Check if the shift is played by home team or away team
                     if data[k][i]['teamAbbrev'] = game_shifts[gameID][home][triCode]:
+                        # Check if the player already exists in the home team's shift data
                         if playerID in game_shifts[gameID][home][players]:
                             player_dict = game_shifts[gameID][home][players][playerID]
                         else:
+                            # Create new entry for the player if he does not exist
                             game_shifts[gameID][home][players][playerID] = {}
                             player_dict = game_shifts[gameID][home][players][playerID]
                             player_dict[playerName] = str(data[k][i][firstName] + " " + data[k][i][lastName])
@@ -794,9 +831,11 @@ def build_game_shifts(directory='.', home_away_teams=None):
                             player_dict[period2] = set()
                             player_dict[period3] = set()
                     else:
+                        # Check if the player already exists in the away team's shift data
                         if playerID in game_shifts[gameID][away][players]:
                             player_dict = game_shifts[gameID][away][players][playerID]
                         else:
+                            # Create new entry for the player if he does not exist
                             game_shifts[gameID][away][players][playerID] = {}
                             player_dict = game_shifts[gameID][away][players][playerID]
                             player_dict[playerName] = str(data[k][i][firstName] + " " + data[k][i][lastName])
@@ -804,6 +843,7 @@ def build_game_shifts(directory='.', home_away_teams=None):
                             player_dict[period2] = set()
                             player_dict[period3] = set()
                     shift_period = data[k][i]['period']
+                    # Assign the shift to the corresponding period
                     if shift_period == 1:
                         player_dict[period1].add((data[k][i]['startTime'], data[k][i]['endTime']))
                     elif shift_period == 2:
@@ -813,9 +853,16 @@ def build_game_shifts(directory='.', home_away_teams=None):
                         shift_column[player_index].append((data[k][i]['startTime'],data[k][i]['endTime']))
                 else:
                     pass
+
     return game_shifts
 
 def get_single_player_teams(player_id, games_trimmed=None):
+    """
+    This function takes in a player ID and a dictionary of trimmed game data and returns a dictionary of the teams 
+    the player has played for in each year. 
+    If games_trimmed is not provided, the function will return None and prompt the user to build the dictionary 
+    with the build_games_trimmed() function.
+    """
     print("get_single_player_teams()", end="\r")
     if games_trimmed == None:
         print("Please build games_trimmed with the build_games_trimmed() function. \nPass the directory your game .json files are saved in as its argument.")
@@ -847,11 +894,19 @@ def get_single_player_teams(player_id, games_trimmed=None):
 
 
 def get_single_player_games(player_id, games_trimmed=None, player_id_set=None, player_teams=None, team_set=None, team_games=None):
+    """
+    This function takes in a player_id and optionally games_trimmed, player_id_set, player_teams, team_set and team_games as input.
+    If games_trimmed is not provided, the function first builds player_id_set, player_teams, team_set and team_games using the appropriate helper functions.
+    The function then uses the player_teams and team_games to find all the gameIDs for the given player_id and returns a dictionary with the year as key and a list of gameIDs as value.
+    """
     print("get_single_player_games()", end="\r")
     if player_id_set is None:
         player_id_set = build_player_id_set(games_trimmed=games_trimmed)
     if player_teams is None:
         player_teams = build_player_teams(games_trimmed=games_trimmed, player_id_set=player_id_set)
+    if player_id not in player_id_set:
+        print(f"Player ID {player_id} not found in player_id_set.")
+        return None
     games_playerID = {}
     if team_set is None:
         team_set = build_team_set(games_trimmed=games_trimmed)
@@ -870,7 +925,17 @@ def get_single_player_games(player_id, games_trimmed=None, player_id_set=None, p
     return games_playerID
 
 
+
 def build_player_teams(games_trimmed=None, player_id_set=None):
+    """
+    This function builds a dictionary containing the teams that each player in the player_id_set has played for in each year.
+    The dictionary is in the format of {player_id: {year: [triCodes]}}
+    
+    games_trimmed: A dictionary containing all of the shot data for all games, in the format returned by the build_games_trimmed() function. 
+                   If not provided, an error message is printed and the function returns None.
+    player_id_set: A set containing player IDs for all players that have taken shots in the provided games_trimmed.
+                   If not provided, it will be built by calling the build_player_id_set() function on games_trimmed
+    """
     print("build_player_teams()")
     if games_trimmed is None:
         print("Please build games_trimmed with the build_games_trimmed() function. \nPass the directory your game .json files are saved in as its argument.")
@@ -878,12 +943,21 @@ def build_player_teams(games_trimmed=None, player_id_set=None):
     if player_id_set is None:
         player_id_set = build_player_id_set(games_trimmed=games_trimmed)
     player_teams = {}
+    # Iterate over the set of player IDs
     for player in player_id_set:
+        # Get the teams for each player by calling the get_single_player_teams() function
         player_teams[player] = get_single_player_teams(player, games_trimmed=games_trimmed)
     return player_teams
 
 
+
 def build_player_id_games(games_trimmed=None, player_id_set=None, player_teams=None, team_set=None, team_games=None):
+    """
+    This function takes games_trimmed and the output of the following functions as arguments:
+    build_player_id_set(games_trimmed), build_player_teams(games_trimmed, player_id_set),
+    build_team_set(games_trimmed), build_team_games(games_trimmed, team_set)
+    The function returns a dictionary with player_ids as keys, and nested dictionaries with years as keys, and lists of game ids as values
+    """
     print("build_player_id_games()")
     if games_trimmed is None:
         print("Please build games_trimmed with the build_games_trimmed() function. \nPass the directory your game .json files are saved in as its argument.")
@@ -910,6 +984,10 @@ def build_player_id_games(games_trimmed=None, player_id_set=None, player_teams=N
 
 
 def build_player_id_set(games_trimmed=None):
+    """
+    This function takes in the games_trimmed dictionary, which should be created by the build_games_trimmed() function.
+    It returns a set of player IDs that have played in the games represented in games_trimmed.
+    """
     print("build_player_id_set()")
     if games_trimmed == None:
         print("Please build games_trimmed with the build_games_trimmed() function.\nPass the directory your game .json files are saved in as its argument.")
@@ -922,21 +1000,46 @@ def build_player_id_set(games_trimmed=None):
 
 
 def build_team_set(games_trimmed=None):
+    """
+    This function extracts the unique team tri-codes from the games_trimmed dictionary and returns a set containing those tri-codes.
+    games_trimmed : dict
+        A dictionary containing the game data, where the keys are game ids and the values are dictionaries containing the shot data for that game.
+    """
     print("build_team_set()")
+    # check if games_trimmed is None
     if games_trimmed is None:
         print("Please build games_trimmed with the build_games_trimmed() function.\nPass the directory your game .json files are saved in as its argument.")
         return None
+    
+    # initialize empty set
     triCodes = set()
+    
+    # iterate over games_trimmed
     for gameID, game_dict in games_trimmed.items():
+        #iterate over shots in each game
         for shot in game_dict.values():
+            # add team tri-code to set
             triCodes.add(shot['team']['triCode'])
+    # return the set
     return triCodes
 
 
 def build_team_games(games_trimmed=None, team_set=None):
+    """
+    Function to build a dictionary containing all games played by each team in the dataset.
+    If games_trimmed is not provided, the function will call the build_games_trimmed() function to create it.
+    If team_set is not provided, the function will call the build_team_set() function to create it.
+    
+    :param games_trimmed: (optional) a dictionary containing all the games in the dataset in the format {game_id: {shot_num: shot_data}}
+    :type games_trimmed: dict
+    :param team_set: (optional) a set containing the 3-letter team codes of all teams in the dataset
+    :type team_set: set
+    :return: a dictionary containing all games played by each team in the dataset in the format {team: [list of game ids]}
+    :rtype: dict
+    """
     print("build_team_games()")
     if games_trimmed is None:
-        print("Please build games_trimmed with the build_games_trimmed() function.\nPass the directory your game .json files are saved in as its argument.")
+        print("Please build games_trimmed with the build_games_trimmed() function. \nPass the directory your game .json files are saved in as its argument.")
         return None
     if team_set == None:
         team_set = build_team_set(games_trimmed=games_trimmed)
@@ -947,11 +1050,16 @@ def build_team_games(games_trimmed=None, team_set=None):
 
 
 def get_single_team_games(triCode, games_trimmed=None):
+    """
+    This function takes in a team's tricode and a dictionary of games_trimmed, which is a dictionary containing 
+    information about each shot in each game, as its inputs. It returns a dictionary containing the game ids for
+    each year that the input team has played in.
+    """
     print("get_single_team_games()", end="\r", flush=True)
     if games_trimmed == None:
         print("Please build games_trimmed with the build_games_trimmed() function.\nPass the directory your game .json files are saved in as its argument.")
         return None
-    # Initialize an empty dictionary to store the teams a player has played for in each year
+    # Initialize an empty dictionary to store the games a team has played in each year
     games_teamID = {}
     progress = 0
     length = 80
@@ -961,26 +1069,31 @@ def get_single_team_games(triCode, games_trimmed=None):
         progress += 1
         print("[", "="*((progress*length)//gtlength), " "*(length-((progress*length)//gtlength)), "] Current game:", gameID, end="\r", flush=True)
         for shot in game_dict.values():
-            # Retrieve the player_id, year, and triCode for the current shot
+            # Retrieve the triCode, year, and gameID for the current shot
             game_triCode = shot['team']['triCode']
 
-            # Check if the player_id matches the input player_id
+            # Check if the triCode matches the input triCode
             if game_triCode == triCode:
                 year = get_game_year(gameID)
-                # Check if the year already exists as a key in the teams_playerID dictionary
+                # Check if the year already exists as a key in the games_teamID dictionary
                 if year not in games_teamID:
                     # If the year does not exist as a key, initialize an empty list for that year as the value of the key
                     games_teamID[year] = []
 
-                # Append the triCode to the list of teams for that year in the teams_playerID dictionary
+                # Append the gameID to the list of games for that year in the games_teamID dictionary
                 if gameID not in games_teamID[year]:
                     games_teamID[year].append(gameID)
 
-    # Return the teams_playerID dictionary
+    # Return the games_teamID dictionary
     return games_teamID
 
 
+
 def build_games_trimmed(directory='.'):
+    """ 
+    This function is used to process json files in the specified directory, and extract certain game-related data from them.
+    The extracted data is then stored in a dictionary and returned.
+    """
     print("build_games_trimmed()", flush=True)
     # Get a list of all .json files in the specified directory
     json_files = [f for f in os.listdir(directory) if f.endswith('.json')]
@@ -1046,22 +1159,43 @@ def build_games_trimmed(directory='.'):
 
 
 def getGameExes(gameDict):
+    # Initialize an empty list to store the x-coordinates of the shots in the game
     gameExes = []
+    # Loop through the shots in the game
     for i in range(1, len(gameDict)):
+        # Append the x-coordinate of the current shot to the list
         gameExes.append(gameDict[i]['coordinates']['x'])
+    # Return the list of x-coordinates
     return gameExes
 
 
+
 def switchGameExes(gameDict):
+    """
+    This function receives a game dictionary and multiplies the x coordinate of each shot by -1.
+    This allows the shots to be directly comparable.
+    """
+    # Loop through the shots in the gameDict
     for i in range(1, len(gameDict)):
+        # Multiply the x coordinate of the shot by -1
         gameDict[i]['coordinates']['x'] *= -1
 
 
 def build_grouped_data(games_trimmed=None, coordinate_shots=None):
+    """
+    This function takes in a dictionary of games_trimmed, which contains the data for each game, 
+    and optionally a dictionary of coordinate_shots, which contains the shots data. 
+    The function groups the shots data into a new dictionary, grouped_data, based on their coordinates.
+    The x and y coordinates of each shot are divided by 5 and 3 respectively, and then the quotient is used as the key in the new dictionary.
+    The value in the new dictionary is a list of shots that fall within that grid cell.
+    """
     # Initialize the new dictionary
     grouped_data = {}
+    
+    # if the coordinate_shots are not provided, use the function build_coordinate_shots to get the data
     if coordinate_shots is None:
         coordinate_shots = build_coordinate_shots(games_trimmed=games_trimmed)
+    
     # Loop through the data points in the original dictionary
     for (x, y) in coordinate_shots.keys():
       # Use integer division to map the x and y values to the coarser grid
@@ -1080,34 +1214,59 @@ def build_grouped_data(games_trimmed=None, coordinate_shots=None):
     return grouped_data
 
 
+
 def get_player_avg_pct_counts_and_groups(playerID, games_trimmed=None, coordinate_shots=None, grouped_data=None):
+    """
+    This function returns the average goal-to-shot ratio of a given player, and the ratio of each group of shots.
+    It takes in the player's ID, the trimmed game data, the coordinate shots data, and the grouped data.
+    """
+    # Print message to show the function is running
     print("get_player_avg_pct_counts_and_groups()", end="\r", flush=True)
+    # If grouped data is not passed, then build it using the provided game data and coordinate shots data
     if grouped_data is None:
         grouped_data = build_grouped_data(games_trimmed=games_trimmed, coordinate_shots=coordinate_shots)
+    # Get the shots made by the player
     player_shots = get_shots_by_player(playerID)
-    weighted_shots = grouped_data
+    # Make a copy of the grouped shots data
+    weighted_shots = grouped_data.copy()
+    # Initialize a dictionary to store the ratio of each group
     group_dict = {}
+    # Initialize the total ratio and weight
     total_ratio = 0
     total_weight = 0
+    # Initialize the progress indicator
     progress = 0
     length = 60
+    # Add the player's shots to the weighted shots
     for gameID, shot in player_shots:
         x, y = get_shot_grouped_coordinates(gameID, shot, games_trimmed=games_trimmed)
         for _ in range(1, 850):
             weighted_shots[(x, y)].append((gameID, shot))
+    # Get the length of the weighted shots
     wslength = len(weighted_shots)
+    # Iterate through each group of shots
     for (x, y) in weighted_shots:
+        # Update the progress indicator
         progress += 1
+        # Print the progress indicator
         print("[", "="*((progress*length)//wslength), " "*(length-((progress*length)//wslength)), "] - Current coordinate:", x, y, "Current player:", playerID, end="\r", flush=True)
+        # Get the ratio of goals to shots for the current group
         group_ratio = get_goal_shot_ratio(playerID, player_shots=weighted_shots[(x, y)], count=1)
+        # Add the ratio of the current group to the total ratio
         total_ratio += group_ratio[0] * len(weighted_shots[(x, y)])
+        # Add the weight of the current group to the total weight
         total_weight += len(weighted_shots[(x, y)])
+        # Add the ratio of the current group to the group dictionary
         group_dict[(x, y)] = group_ratio
+    # Return the average ratio and the group ratios
     return (total_ratio / total_weight, group_dict)
 
 
-
 def get_player_avg_pct_and_groups(playerID, games_trimmed=None, coordinate_shots=None, player_id_set=None, player_teams=None, team_set=None, team_games=None, player_id_games=None, grouped_data=None, player_shots=None):
+    """
+    This function takes in a player ID and returns the average shooting percentage 
+    and a dictionary of shooting percentages for each (x, y) coordinate group.
+    """
     print("get_player_avg_pct_and_groups()", end="\r", flush=True)
     if games_trimmed is None:
         print("Please build games_trimmed with the build_games_trimmed() function. \nPass the directory your game .json files are saved in as its argument.")
@@ -1133,23 +1292,34 @@ def get_player_avg_pct_and_groups(playerID, games_trimmed=None, coordinate_shots
     group_dict = {}
     total_ratio = 0
     total_weight = 0
+    
+    # weight the shots by adding them to the corresponding coordinate group in the weighted_shots dictionary
     for gameID, shot in player_shots:
         x, y = get_shot_grouped_coordinates(gameID, shot, games_trimmed=games_trimmed)
         for _ in range(1, 850):
             weighted_shots[(x, y)].append((gameID, shot))
+            
+    # calculate the goal shot ratio for each coordinate group
     for (x, y) in weighted_shots:
         group_ratio = get_goal_shot_ratio(playerID, player_shots=weighted_shots[(x, y)], count=False, games_trimmed=games_trimmed, player_id_set=player_id_set, player_teams=player_teams, team_set=team_set, team_games=team_games, player_id_games=player_id_games)
+        # add the group ratio to the total ratio, weighted by the number of shots in the group
         total_ratio += group_ratio * len(weighted_shots[(x, y)])
         total_weight += len(weighted_shots[(x, y)])
         group_dict[(x, y)] = group_ratio
+    # calculate the overall average goal shot ratio by dividing the total ratio by the total weight
     return (total_ratio / total_weight, group_dict)
 
 
 def get_shot_coordinates(gameID, shotID, games_trimmed=None):
+    """
+    This function takes in the gameID and shotID for a specific shot, as well as the games_trimmed dictionary, which is a dictionary where each key is a gameID and each value is a list of shots for that game.
+    The function returns a tuple of the x and y coordinates for that shot.
+    """
     if games_trimmed is None:
         print("Please build games_trimmed with the build_games_trimmed() function. \nPass the directory your game .json files are saved in as its argument.")
         return None
     return (games_trimmed[gameID][shotID]['coordinates']['x'], games_trimmed[gameID][shotID]['coordinates']['y'])
+
 
 
 def get_shot_grouped_coordinates(gameID, shotID, games_trimmed=None):
