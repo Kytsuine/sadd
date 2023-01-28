@@ -80,14 +80,6 @@ def time_test(func, args=None, n=100):
     print(f"Average time taken for ", str(func), ": ", total/count, "ms\n")
 
 def get_home_on_ice(gameID, period, periodTime, game_shifts=None, directory='.'):
-    """
-    This function takes in a gameID, period, and periodTime, and returns a list of player IDs for players who were on the ice for the home team during that period and time.
-    If game_shifts is not passed as an argument, it will be built using the game data found in the directory provided.
-    If the period is not within the range of 1-3, the function will return None.
-    
-    Example usage:
-    home_players = get_home_on_ice(2017020001, 1, 1234, directory='/data')
-    """
     # Check that the period is within the range of 1-3. If not, return a null value.
     if period not in range(1,4):
         return None
@@ -96,7 +88,7 @@ def get_home_on_ice(gameID, period, periodTime, game_shifts=None, directory='.')
         game_shifts = build_game_shifts(directory=directory) # Make sure to pass the right directory if you don't pass game_shifts. 
     
     # Retrieve the game dataframe corresponding to the gameID
-    game_dict = game_shifts[gameID]['home']
+    game_dict = game_shifts[gameID][home]
 
     # Identify the period of the shot to find the corresponding shifts_n column
     period_dict = "period" + str(period)
@@ -115,27 +107,7 @@ def get_home_on_ice(gameID, period, periodTime, game_shifts=None, directory='.')
                 player_ids.append(row['player_id'])
     return player_ids
 
-
 def get_away_on_ice(gameID, period, periodTime, game_shifts=None, directory='.'):
-    """
-    Given a game ID, period, and period time, this function returns a list of player IDs for the away team who were on the ice at that time. 
-    If game_shifts is not passed, it will use the build_game_shifts function to build it using the directory parameter.
-
-    Parameters:
-    gameID (int): the game ID to retrieve the player IDs for
-    period (int): the period of the game to retrieve the player IDs for, must be between 1 and 3
-    periodTime (int): the time of the period to retrieve the player IDs for
-    game_shifts (dict): a dictionary of game shift data, if not passed it will be built using the directory parameter
-    directory (str): the directory where the game shift data is located, defaults to the current directory
-
-    Returns:
-    list: a list of player IDs for the away team who were on the ice at the given period time. 
-    None: if the input period is not between 1 and 3
-
-    Example:
-    game_shifts = build_game_shifts()
-    away_players_on_ice = get_away_on_ice(2012030221, 2, 599, game_shifts)
-    """
     # Check that the period is within the range of 1-3. If not, return a null value.
     if period not in range(1,4):
         return None
@@ -144,7 +116,7 @@ def get_away_on_ice(gameID, period, periodTime, game_shifts=None, directory='.')
         game_shifts = build_game_shifts(directory=directory) # Make sure to pass the right directory if you don't pass game_shifts. 
     
     # Retrieve the game dataframe corresponding to the gameID
-    game_dict = game_shifts[gameID]['away']
+    game_dict = game_shifts[gameID][away]
 
     # Identify the period of the shot to find the corresponding shifts_n column
     period_dict = "period" + str(period)
@@ -152,7 +124,7 @@ def get_away_on_ice(gameID, period, periodTime, game_shifts=None, directory='.')
     # Initialize an empty list to store the player_ids for players on the ice
     player_ids = []
 
-    # Loop through each player in the game dataframe
+    # Loop through each row in the game dataframe
     for player in game_dict:  
         # Retrieve the shift tuples for the current player
         shift_tuples = player[period_dict]
@@ -164,81 +136,57 @@ def get_away_on_ice(gameID, period, periodTime, game_shifts=None, directory='.')
 
     return player_ids
 
-
 def get_players_on_ice(gameID, period, periodTime, game_shifts=None, directory='.'):
-    """
-    This function retrieves the player_ids of the players that were on the ice during a specific period and time of a game.
-    The function first calls get_home_on_ice() and get_away_on_ice() to get the player_ids for the home and away teams respectively.
-    These lists are then concatenated and returned.
-    :param gameID: The id of the game.
-    :param period: The period of the game.
-    :param periodTime: The time in seconds into the period.
-    :param game_shifts: The game shift data. 
-    :param directory: The directory where the game shift data is stored.
-    :return: A list of player_ids that were on the ice during the specified period and time. 
-    """
     player_ids = []
-    player_ids.extend(get_home_on_ice(gameID, period, periodTime, game_shifts=game_shifts, directory=directory))
-    player_ids.extend(get_away_on_ice(gameID, period, periodTime, game_shifts=game_shifts, directory=directory))
+    player_ids.extend(get_home_on_ice(gameID, period, periodTime, game_shifts=game_shifts, directory=directory)
+    player_ids.extend(get_away_on_ice(gameID, period, periodTime, game_shifts=game_shifts, directory=directory)
     return player_ids
 
-# Example usage:
-# players_on_ice = get_players_on_ice(gameID=2017020220, period=2, periodTime=6:00, directory='/path/to/directory')
-# print(players_on_ice)
-# Output: [5,6,7,8,9,10,11,12,13,14,15,16]
 
+def get_player_shots(player_id, games_trimmed=None, player_id_set=None, player_teams=None, team_set=None, team_games=None, player_id_games=None):
+    print("get_player_shots()", end="\r")
+    if games_trimmed is None:
+        print("Please build games_trimmed with the build_games_trimmed() function. \nPass the directory your game .json files are saved in as its argument.")
+        return None
+    if player_id_set is None:
+        player_id_set = build_player_id_set(games_trimmed=games_trimmed)
+    if player_teams is None:
+        player_teams = build_player_teams(games_trimmed=games_trimmed, player_id_set=player_id_set)
+    if team_set is None:
+        team_set = build_team_set(games_trimmed=games_trimmed)
+    if team_games is None:
+        team_games = build_team_games(games_trimmed=games_trimmed, team_set=team_set)
+    if player_id_games is None:
+        player_id_games = build_player_id_games(games_trimmed=games_trimmed, player_id_set=player_id_set, player_teams=player_teams, team_games=team_games)
 
-def get_player_shots(player_id, games_trimmed=None, game_shifts=None, directory='.'):
-	"""
-	Returns a list of tuples of the form (gameID, shot_num) of the shots taken by a player when they were on the ice.
-	player_id : int
-		The player's unique ID.
-	games_trimmed : dict
-		A dictionary of all game events. If not provided, will be built by calling the function build_games_trimmed().
-	game_shifts : dict
-		A dictionary of all player shifts for a game. If not provided, will be built by calling the function build_game_shifts().
-	directory : str
-		The directory where the game .json files are saved. Only necessary if games_trimmed or game_shifts are not provided.
-	"""
-	if games_trimmed is None:
-		games_trimmed = build_games_trimmed(directory)
-	if game_shifts is None:
-		game_shifts = build_game_shifts(directory)
+    # Initialize an empty list to store the shots taken when the player was on the ice.
+    player_shots = []
 
-	# Initialize an empty list to store the shots taken when the player was on the ice.
-	player_shots = []
+    # Retrieve the games for the player from the player_id_games dictionary
+    games = player_id_games[player_id]
 
-	# Iterate over the keys in the games_trimmed dictionary
-	for gameID, game_dict in games_trimmed.items():
-		# Iterate over the shots in the game
-		for shot_num, shot in game_dict.items():
-		    periodTime = shot['about']['periodTime']
-		    period = shot['about']['period']
+    # Iterate over the keys in the games dictionary
+    for year, gameIDs in games.items():
+        # Iterate over the gameIDs in the list of gameIDs for the current year
+        for gameID in gameIDs:
+            # Retrieve the game dictionary for the current gameID
+            game_dict = games_trimmed[gameID]
 
-		    # Check if the player was on the ice at the time of the shot
-		    players_on_ice = get_players_on_ice(gameID, period, periodTime, game_shifts=game_shifts)
-		    if players_on_ice is not None and player_id in players_on_ice:
-		        # Append a tuple (game_ID, shot_num) to the list of player shots
-		        player_shots.append((gameID, shot_num))
+            # Iterate over the shots in the game
+            for shot_num, shot in game_dict.items():
+                periodTime = shot['about']['periodTime']
+                period = shot['about']['period']
 
-	return player_shots
+                # Check if the player was on the ice at the time of the shot
+                players_on_ice = get_players_on_ice(gameID, period, periodTime)
+                if players_on_ice is not None and player_id in players_on_ice:
+                    # Append a tuple (game_ID, shot_num) to the list of player shots
+                    player_shots.append((gameID, shot_num))
 
+    return player_shots
 
 
 def get_shots_by_player(player_id, games_trimmed=None, player_id_set=None, player_teams=None, team_set=None, team_games=None, player_id_games=None):
-    """
-    This function retrieves all the shots taken by a player from a given set of game data.
-    Inputs:
-        player_id: integer, unique identifier for a player
-        games_trimmed: dictionary, containing game information
-        player_id_set: set, containing player_ids
-        player_teams: dictionary, containing player_id as key and team_name as value
-        team_set: set, containing team_name
-        team_games: dictionary, containing team_name as key and game_id as value
-        player_id_games: dictionary, containing player_id as key and games as value
-    Outputs:
-        player_shots: list, containing tuples of (game_id, shot_num)
-    """
     print("get_shots_by_player()", end="\r")
     if games_trimmed is None:
         print("Please build games_trimmed with the build_games_trimmed() function. \nPass the directory your game .json files are saved in as its argument.")
@@ -286,24 +234,6 @@ def get_shots_by_player(player_id, games_trimmed=None, player_id_set=None, playe
 
 
 def get_player_shots_against(player_id, games_trimmed=None, player_id_set=None, player_teams=None, team_set=None, team_games=None, player_id_games=None):
-    """
-    This function takes in a player_id and returns a list of shots taken against that player when they were on the ice.
-    The games_trimmed, player_id_set, player_teams, team_set, team_games, and player_id_games parameters are used to optimize performance by avoiding redundant computations.
-    If any of these parameters are not provided, they will be generated using the corresponding build_*() function.
-    
-    Parameters:
-    player_id (int): The ID of the player for which to retrieve shots against
-    games_trimmed (dict, optional): A dictionary of games with the format {game_id: {shot_num: {shot_data}}}
-    player_id_set (set, optional): A set of player IDs
-    player_teams (dict, optional): A dictionary of player teams with the format {player_id: {year: [team_codes]}}
-    team_set (set, optional): A set of team codes
-    team_games (dict, optional): A dictionary of team games with the format {team_code: {year: [game_ids]}}
-    player_id_games (dict, optional): A dictionary of player games with the format {player_id: {year: [game_ids]}}
-    
-    Returns:
-    List of shots taken against player_id in the format [ (game_id, shot_num), ... ] 
-    """
-    
     print("get_player_shots_against()", end="\r")
     if games_trimmed is None:
         print("Please build games_trimmed with the build_games_trimmed() function. \nPass the directory your game .json files are saved in as its argument.")
@@ -361,20 +291,6 @@ def get_player_shots_against(player_id, games_trimmed=None, player_id_set=None, 
 
 
 def get_goal_shot_ratio(player_id, player_shots=None, count=False, games_trimmed=None, player_id_set=None, player_teams=None, team_set=None, team_games=None, player_id_games=None):
-    """
-    This function calculates the ratio of goals to shots for a given player.
-    It also has the option to return the count of shots taken by the player.
-    
-    player_id: ID of the player for which the ratio is to be calculated
-    player_shots: List of shot dictionaries for the player (default None)
-    count: A boolean that indicates if the number of shots taken by the player should be returned (default False)
-    games_trimmed: A dictionary containing the game data (default None)
-    player_id_set: A set of player IDs (default None)
-    player_teams: A dictionary that maps player IDs to teams (default None)
-    team_set: A set of team names (default None)
-    team_games: A dictionary that maps team names to the games they played (default None)
-    player_id_games: A dictionary that maps player IDs to the games they played (default None)
-    """
     print("get_goal_shot_ratio()", end="\r")
     if games_trimmed is None:
         print("Please build games_trimmed with the build_games_trimmed() function. \nPass the directory your game .json files are saved in as its argument.")
@@ -389,6 +305,7 @@ def get_goal_shot_ratio(player_id, player_shots=None, count=False, games_trimmed
         team_games = build_team_games(games_trimmed=games_trimmed, team_set=team_set)
     if player_id_games is None:
         player_id_games = build_player_id_games(games_trimmed=games_trimmed, player_id_set=player_id_set, player_teams=player_teams, team_games=team_games)
+
 
     # If player_shots is not provided, retrieve them using the get_player_shots function
     if player_shots is None:
@@ -428,9 +345,6 @@ def get_goal_shot_ratio(player_id, player_shots=None, count=False, games_trimmed
 
 
 def get_coordinate_goal_shot_ratio_against(player_id, coordinate, games_trimmed=None, coordinate_shots=None, player_id_set=None, player_teams=None, team_set=None, team_games=None, player_id_games=None):
-    """
-    This function calculates the proportion of goals scored to shots taken against a defensive player at a specific coordinate on the ice.
-    """
     print("get_coordinate_goal_shot_ratio_against()", end="\r")
     if games_trimmed is None:
         print("Please build games_trimmed with the build_games_trimmed() function. \nPass the directory your game .json files are saved in as its argument.")
@@ -448,7 +362,7 @@ def get_coordinate_goal_shot_ratio_against(player_id, coordinate, games_trimmed=
     if player_id_games is None:
         player_id_games = build_player_id_games(games_trimmed=games_trimmed, player_id_set=player_id_set, player_teams=player_teams, team_games=team_games)
 
-    # Retrieve the player_shots using the get_player_shots_against function
+    # Retrieve the player_shots using the get_player_shots function
     player_shots = get_player_shots_against(player_id,  games_trimmed=games_trimmed, player_id_set=player_id_set, player_teams=player_teams, team_set=team_set, team_games=team_games, player_id_games=player_id_games)
 
     # Filter the player_shots list to only include shots taken from the given coordinate
@@ -467,37 +381,7 @@ def get_coordinate_goal_shot_ratio_against(player_id, coordinate, games_trimmed=
 
 
 
-
 def get_coordinate_goal_shot_ratio(x, y, count=False, games_trimmed=None, coordinate_shots=None, player_id_set=None, player_teams=None, team_set=None, team_games=None, player_id_games=None):
-    """
-    Given the x and y coordinates of a shot location on the ice, this function calculates the proportion of goals to shots taken from that location.
-    Optionally, it also returns the total number of shots taken from that location.
-    
-    Parameters:
-    x (int): The x-coordinate of the shot location on the ice.
-    y (int): The y-coordinate of the shot location on the ice.
-    count (bool): If True, returns a tuple containing the proportion of goals to shots and the total number of shots taken from that location.
-                  If False, returns only the proportion of goals to shots. (default: False)
-    games_trimmed (dict): A dictionary containing the game data, with games indexed by game ID and shots indexed by shot number.
-                          If None, the function will try to build it using the `build_games_trimmed()` function.
-    coordinate_shots (dict): A dictionary containing the locations (game IDs and shot numbers) where shots were taken from a given x, y coordinate on the ice.
-                             If None, the function will try to build it using the `build_coordinate_shots()` function.
-    player_id_set (set): A set of player IDs that appeared in the games_trimmed.
-                         If None, the function will try to build it using the `build_player_id_set()` function.
-    player_teams (dict): A dictionary mapping player IDs to teams.
-                         If None, the function will try to build it using the `build_player_teams()` function.
-    team_set (set): A set of team names that appeared in the games_trimmed.
-                     If None, the function will try to build it using the `build_team_set()` function.
-    team_games (dict): A dictionary mapping team names to a list of game IDs in which the team played.
-                       If None, the function will try to build it using the `build_team_games()` function.
-    player_id_games (dict): A dictionary mapping player IDs to a list of game IDs in which the player appeared.
-                            If None, the function will try to build it using the `build_player_id_games()` function.
-    
-    Returns:
-    tuple or float: If `count` is True, returns a tuple containing the proportion of goals to shots and the total number of shots taken from that location.
-                    If `count` is False, returns only the proportion of goals to shots.
-                    If the x, y coordinate is not found in the coordinate_shots dictionary, returns None.
-	"""
     print("get_coordinate_goal_shot_ratio()", end="\r")
     if games_trimmed is None:
         print("Please build games_trimmed with the build_games_trimmed() function. \nPass the directory your game .json files are saved in as its argument.")
@@ -552,27 +436,6 @@ def get_coordinate_goal_shot_ratio(x, y, count=False, games_trimmed=None, coordi
 
 
 def get_coordinate_goal_shot_ratio_against(player_id, x, y, games_trimmed=None, coordinate_shots=None, player_id_set=None, player_teams=None, team_set=None, team_games=None, player_id_games=None, player_shots=None):
-	"""
-	Given a player ID, x and y coordinates, and optional pre-built data, this function calculates the proportion of shots taken by the player at the specified coordinates that resulted in goals.
-	Parameters:
-	- player_id (int): The player ID for which the proportion of goals to shots is calculated
-	- x (int): The x-coordinate of the shot location
-	- y (int): The y-coordinate of the shot location
-	- games_trimmed (list, optional): A list of game events, as returned by the build_games_trimmed() function. If not provided, the function will call build_games_trimmed()
-	- coordinate_shots (dict, optional): A dictionary of shots taken at a specific location, as returned by the build_coordinate_shots() function. If not provided, the function will call build_coordinate_shots()
-	- player_id_set (set, optional): A set of player IDs, as returned by the build_player_id_set() function. If not provided, the function will call build_player_id_set()
-	- player_teams (dict, optional): A dictionary of player IDs and their corresponding teams, as returned by the build_player_teams() function. If not provided, the function will call build_player_teams()
-	- team_set (set, optional): A set of team IDs, as returned by the build_team_set() function. If not provided, the function will call build_team_set()
-	- team_games (dict, optional): A dictionary of teams and the games they played, as returned by the build_team_games() function. If not provided, the function will call build_team_games()
-	- player_id_games (dict, optional): A dictionary of player IDs and the games they played, as returned by the build_player_id_games() function. If not provided, the function will call build_player_id_games()
-	- player_shots (list, optional): A list of shots taken by the player, as returned by the get_player_shots_against() function. If not provided, the function will call get_player_shots_against()
-
-	Returns:
-	- The proportion of shots taken by the player at the specified coordinates that resulted in goals, as a float between 0 and 1.
-
-	Example usage:
-	proportion_of_goals = get_coordinate_goal_shot_ratio_against(player_id=8471214, x=25, y=50)
-	"""
     print("get_coordinate_goal_shot_ratio_against()", end="\r")
     if games_trimmed is None:
         print("Please build games_trimmed with the build_games_trimmed() function. \nPass the directory your game .json files are saved in as its argument.")
@@ -605,13 +468,12 @@ def get_coordinate_goal_shot_ratio_against(player_id, x, y, games_trimmed=None, 
 
 
 def get_coordinate_goal_shot_ratio_for_player(player_id, x, y, games_trimmed=None, player_id_set=None, player_teams=None, team_set=None, team_games=None, player_id_games=None, player_shots=None, coordinate_shots=None):
-    """
-    This function returns the proportion of goals to shots for a given player at a specific coordinate (x, y) on the ice.
-    If the games_trimmed, player_id_set, player_teams, team_set, team_games, player_id_games, player_shots and coordinate_shots arguments are not provided, the function will build them using the appropriate helper functions.
-    """
     print("get_coordinate_goal_shot_ratio_for_player()", end="\r")
     if games_trimmed is None:
-        games_trimmed = build_games_trimmed(games_directory)
+        print("Please build games_trimmed with the build_games_trimmed() function. \nPass the directory your game .json files are saved in as its argument.")
+        return None
+
+    # If player_shots is not provided, retrieve the player_shots using the get_shots_by_player function
     if player_id_set is None:
         player_id_set = build_player_id_set(games_trimmed=games_trimmed)
     if player_teams is None:
@@ -638,27 +500,23 @@ def get_coordinate_goal_shot_ratio_for_player(player_id, x, y, games_trimmed=Non
 
 
 def build_player_coordinate_list(player_id_set=None, player_teams=None, team_set=None, team_games=None, player_id_games=None):
-    """
-    This function is used to build a dictionary of all the coordinates of shots made by each player. 
-    The dictionary is keyed by player ID and contains a list of tuples, where each tuple is a pair of x, y coordinates.
-    """
-    # Initialize the player_id_set, player_teams, team_set, team_games and player_id_games if they are not passed in
+    print("build_player_coordinate_list()")
     if player_id_set is None:
-        player_id_set = build_player_id_set()
+        player_id_set = build_player_id_set(games_trimmed=games_trimmed)
     if player_teams is None:
-        player_teams = build_player_teams(player_id_set=player_id_set)
+        player_teams = build_player_teams(games_trimmed=games_trimmed, player_id_set=player_id_set)
     if team_set is None:
-        team_set = build_team_set()
+        team_set = build_team_set(games_trimmed=games_trimmed)
     if team_games is None:
-        team_games = build_team_games(team_set=team_set)
+        team_games = build_team_games(games_trimmed=games_trimmed, team_set=team_set)
     if player_id_games is None:
-        player_id_games = build_player_id_games(player_id_set=player_id_set, player_teams=player_teams, team_games=team_games)
+        player_id_games = build_player_id_games(games_trimmed=games_trimmed, player_id_set=player_id_set, player_teams=player_teams, team_games=team_games)
 
     # Create an empty dictionary to store player coordinates
     player_coordinates = {}
 
-    # Loop through each player ID in the player_id_set
-    for playerID in player_id_set:
+    # Loop through each player ID in the player_id_list
+    for playerID in player_id_list:
         # If the player ID is not in the player_coordinates dictionary, add an empty list for that player
         if playerID not in player_coordinates:
             player_coordinates[playerID] = []
@@ -681,12 +539,6 @@ def build_player_coordinate_list(player_id_set=None, player_teams=None, team_set
 
 
 def build_home_away_teams(directory='.'):
-    """
-    This function will parse through all the .json files in a specified directory,
-    read the json file, extract the home and away team's triCode and store it in a dictionary with key as gameID
-    and value as tuple of home and away team's triCode.
-    If no directory is specified, it will take the current directory as default.
-    """
     print("build_home_away_teams()")
     json_files = [f for f in os.listdir(directory) if f.endswith('.json')]
     home_away_teams = {}
@@ -698,9 +550,6 @@ def build_home_away_teams(directory='.'):
         with open(file_path, encoding='utf-8') as json_file:
             game_data = json.load(json_file)
 
-            # Extracting the gameID from the file name
-            gameID = file_name.split(".")[0]
-            
             # Retrieve the teams data from the game file
             teams = game_data['gameData']['teams']
 
@@ -715,11 +564,6 @@ def build_home_away_teams(directory='.'):
 
 
 def build_coordinate_shots(games_trimmed=None):
-    """
-    Build a dictionary of shots grouped by their x,y coordinate location from a games_trimmed dictionary
-    :param games_trimmed: A dictionary containing the shots for each game_id, as returned by the build_games_trimmed() function
-    :return: A dictionary of shots grouped by their x,y coordinate location, where the key is a tuple of (x, y) and the value is a list of tuples containing (game_id, shot_num)
-    """
     print("build_coordinate_shots()")
     if games_trimmed == None:
         print("Please build games_trimmed with the build_games_trimmed() function. \nPass the directory your game .json files are saved in as its argument.")
@@ -1252,11 +1096,13 @@ def get_shot_time(gameID, shotID, games_trimmed=None):
     return (games_trimmed[gameID][shotID]['about']['period'], games_trimmed[gameID][shotID]['about']['periodTime'])
 
 
-def build_sadd(games_trimmed=None, directory='.', game_shifts=None, player_id_set=None, player_teams=None, team_set=None, team_games=None, player_id_games=None, coordinate_shots=None, grouped_data=None, player_pcts_and_groups=None):
+def build_sadd(games_trimmed=None, directory='.', game_shifts=None, home_away_teams=None, player_id_set=None, player_teams=None, team_set=None, team_games=None, player_id_games=None, coordinate_shots=None, grouped_data=None, player_pcts_and_groups=None):
     print("build_sadd(): Checking definitions of initial dictionaries", flush=True)
     if games_trimmed is None:
         print("Caution! Assuming game data is stored in the games subdirectory of the current working directory.\nIf this is not accurate, please call build_games_trimmed() with the correct diretory.")
         games_trimmed = build_games_trimmed('./games/')
+    if home_away_teams is None:
+        home_away_teams=build_home_away_teams(directory=directory)
     if game_shifts is None:
         game_shifts=build_game_shifts(directory=directory)
     if player_id_set is None:
@@ -1288,13 +1134,18 @@ def build_sadd(games_trimmed=None, directory='.', game_shifts=None, player_id_se
     print("build_sadd(): Building SADD dictionary for games.", flush=True)
     for gameID, gameDict in games_trimmed.items():
         progress += 1
+        homeTeam = home_away_teams[gameID][0]
+        awayTeam = home_away_teams[gameID][1]
         print("[", "="*((progress*length)//gtlength), " "*(length-((progress*length)//gtlength)), "] - Current game:", gameID, end="\r")
         for shotID in gameDict.keys():
             period, time = get_shot_time(gameID, shotID, games_trimmed=games_trimmed)
-            playerList = get_players_on_ice(gameID, period, time, game_shifts=game_shifts)
             shooter = get_shot_shooter(gameID, shotID, games_trimmed=games_trimmed)
+            shotTeam = get_shooter_team(gameID, playerID, game_shifts)
             shotYear = get_game_year(gameID)
-            defenseSet = get_opposing_players(shooter, playerList, shotYear, player_teams=player_teams, games_trimmed=games_trimmed, player_id_set=player_id_set)
+            if shotTeam:
+                defenseOnIce = get_away_on_ice(gameID, period, time, game_shifts=game_shifts)
+            else:
+                defenseOnIce = get_home_on_ice(gameID, period, time, game_shifts=game_shifts)
             shotPct = get_shot_pct(gameID, shotID, games_trimmed=games_trimmed, player_id_set=player_id_set, player_teams=player_teams, team_set=team_set, team_games=team_games, player_id_games=player_id_games, coordinate_shots=coordinate_shots, grouped_data=grouped_data, player_pcts_and_groups=player_pcts_and_groups)
             shooterPct = get_shooter_pct(gameID, shotID, games_trimmed=games_trimmed, player_id_set=player_id_set, player_teams=player_teams, team_set=team_set, team_games=team_games, player_id_games=player_id_games, coordinate_shots=coordinate_shots, grouped_data=grouped_data, player_pcts_and_groups=player_pcts_and_groups)
             for player in defenseSet:
@@ -1307,6 +1158,15 @@ def build_sadd(games_trimmed=None, directory='.', game_shifts=None, player_id_se
                 sadd[player]['sadd_events'] += 1
                 sadd[player]['sadd'] = sadd[player]['pct_diff_total']/sadd[player]['sadd_events']
     return sadd
+
+def get_shooter_team(gameID, playerID, game_shifts=None)
+    if game_shifts = None:
+        print("Caution! Assuming shift data is stored in the shifts subdirectory of the current working directory.\nIf this is not accurate, please call build_game_shifts() with the correct directory.")
+        game_shifts = build_game_shifts(directory='./shifts/')
+    if playerID in game_shifts[gameID][home]:
+        return 1
+    else:
+        return 0
 
 def get_opposing_players(player, playerList, year, player_teams=None, games_trimmed=None, player_id_set=None):
     if games_trimmed is None:
