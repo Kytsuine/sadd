@@ -282,8 +282,6 @@ def get_shots_by_player(player_id, games_trimmed=None, player_id_set=None, playe
     return player_shots
 
 
-# In[14]:
-
 
 def get_player_shots_against(player_id, games_trimmed=None, player_id_set=None, player_teams=None, team_set=None, team_games=None, player_id_games=None):
     """
@@ -464,8 +462,6 @@ def get_coordinate_goal_shot_ratio_against(player_id, coordinate, games_trimmed=
 
     # Return the proportion_of_goals
     return proportion_of_goals
-
-
 
 
 def get_coordinate_goal_shot_ratio(x, y, count=False, games_trimmed=None, coordinate_shots=None, player_id_set=None, player_teams=None, team_set=None, team_games=None, player_id_games=None):
@@ -856,6 +852,11 @@ def build_game_shifts(directory='.', home_away_teams=None):
 
     return game_shifts
 
+# TODO: Create function build_player_games() from game_shifts; dict with playerID primary key, subkeys player name and away, home. 
+#   Away, home contain subkeys of gameIDs for games where player was home and games where player was away.
+
+# Below function deprecated by build_player_games; used only to make approximation of player games played.
+
 def get_single_player_teams(player_id, games_trimmed=None):
     """
     This function takes in a player ID and a dictionary of trimmed game data and returns a dictionary of the teams 
@@ -892,6 +893,7 @@ def get_single_player_teams(player_id, games_trimmed=None):
     # Return the teams_playerID dictionary
     return teams_playerID
 
+# Below function deprecated by build_player_games, function replicated fully but structure different.
 
 def get_single_player_games(player_id, games_trimmed=None, player_id_set=None, player_teams=None, team_set=None, team_games=None):
     """
@@ -925,6 +927,8 @@ def get_single_player_games(player_id, games_trimmed=None, player_id_set=None, p
     return games_playerID
 
 
+# Below function deprecated by build_player_games; function used only for functions accessible thereby.
+# Possible extension to player_games: teams key? Subkey year, subsubkey tricode?
 
 def build_player_teams(games_trimmed=None, player_id_set=None):
     """
@@ -950,6 +954,7 @@ def build_player_teams(games_trimmed=None, player_id_set=None):
     return player_teams
 
 
+# Below function fully replicated by build_player_games.
 
 def build_player_id_games(games_trimmed=None, player_id_set=None, player_teams=None, team_set=None, team_games=None):
     """
@@ -982,6 +987,8 @@ def build_player_id_games(games_trimmed=None, player_id_set=None, player_teams=N
     # Return the player_id_games dictionary
     return player_id_games
 
+# Below function essentially replicated by build_player_games, different format may be needed some places. Double check.
+# Rebuild from build_player_games for efficiency?
 
 def build_player_id_set(games_trimmed=None):
     """
@@ -998,6 +1005,7 @@ def build_player_id_set(games_trimmed=None):
             player_id_set.add(shot['players'][0]['player']['id'])
     return player_id_set
 
+# Rebuild to use game_shifts? Could make team_games from that more efficiently.
 
 def build_team_set(games_trimmed=None):
     """
@@ -1023,7 +1031,7 @@ def build_team_set(games_trimmed=None):
     # return the set
     return triCodes
 
-
+# Rewrite to build from game_shifts.
 def build_team_games(games_trimmed=None, team_set=None):
     """
     Function to build a dictionary containing all games played by each team in the dataset.
@@ -1048,7 +1056,7 @@ def build_team_games(games_trimmed=None, team_set=None):
         team_games[team] = get_single_team_games(team, games_trimmed=games_trimmed)
     return team_games
 
-
+# Made redundant by game_shifts (only used for build_team_games). Rewrite to work off game_shifts and leave in just in case.
 def get_single_team_games(triCode, games_trimmed=None):
     """
     This function takes in a team's tricode and a dictionary of games_trimmed, which is a dictionary containing 
@@ -1159,6 +1167,10 @@ def build_games_trimmed(directory='.'):
 
 
 def getGameExes(gameDict):
+    """
+    This function makes a list of x-coordinates from which a shot was taken
+    in a given game. This is used to test whether it needs to be inverted.
+    """
     # Initialize an empty list to store the x-coordinates of the shots in the game
     gameExes = []
     # Loop through the shots in the game
@@ -1321,8 +1333,12 @@ def get_shot_coordinates(gameID, shotID, games_trimmed=None):
     return (games_trimmed[gameID][shotID]['coordinates']['x'], games_trimmed[gameID][shotID]['coordinates']['y'])
 
 
+# TODO: Link grouping numbers for this function and build_grouped_coordinates to allow manual control of fineness.
 
 def get_shot_grouped_coordinates(gameID, shotID, games_trimmed=None):
+    """
+    This function returns the coordinates of a shot under the grouping established by grouped_data.
+    """
     if games_trimmed is None:
         print("Please build games_trimmed with the build_games_trimmed() function. \nPass the directory your game .json files are saved in as its argument.")
         return None
@@ -1330,6 +1346,9 @@ def get_shot_grouped_coordinates(gameID, shotID, games_trimmed=None):
 
 
 def build_player_pcts_and_groups(games_trimmed=None, player_id_set = None, player_teams=None, team_set=None, team_games=None, player_id_games=None, coordinate_shots=None, grouped_data=None):
+    """
+    This function returns a dictionary of players, each containing each (grouped) coordinate from which that player has shot, and their shooting percentage at that coordinate.
+    """
     if games_trimmed is None:
         print("Please build games_trimmed with the build_games_trimmed() function. \nPass the directory your game .json files are saved in as its argument.")
         return None
@@ -1360,6 +1379,9 @@ def build_player_pcts_and_groups(games_trimmed=None, player_id_set = None, playe
 
 
 def get_shot_shooter(gameID, shotID, games_trimmed=None):
+    """
+    This function returns the shooter of a particular shot.
+    """
     if games_trimmed is None:
         print("Please build games_trimmed with the build_games_trimmed() function. \nPass the directory your game .json files are saved in as its argument.")
         return None
@@ -1367,6 +1389,9 @@ def get_shot_shooter(gameID, shotID, games_trimmed=None):
 
 
 def get_shot_pct(gameID, shotID, games_trimmed=None, player_id_set=None, player_teams=None, team_set=None, team_games=None, player_id_games=None, coordinate_shots=None, grouped_data=None, player_pcts_and_groups=None):
+    """
+    This function returns the expected shooting percentage of a given shot based on its location and shooter.
+    """
     if games_trimmed is None:
         print("Please build games_trimmed with the build_games_trimmed() function. \nPass the directory your game .json files are saved in as its argument.")
         return None
@@ -1392,6 +1417,9 @@ def get_shot_pct(gameID, shotID, games_trimmed=None, player_id_set=None, player_
 
 
 def get_shooter_pct(gameID, shotID, games_trimmed=None, player_id_set=None, player_teams=None, team_set=None, team_games=None, player_id_games=None, coordinate_shots=None, grouped_data=None, player_pcts_and_groups=None):
+    """
+    This function returns the overall shooting percentage of the player who took a particular shot.
+    """
     if games_trimmed is None:
         print("Please build games_trimmed with the build_games_trimmed() function. \nPass the directory your game .json files are saved in as its argument.")
         return None
@@ -1416,13 +1444,19 @@ def get_shooter_pct(gameID, shotID, games_trimmed=None, player_id_set=None, play
 
 
 def get_shot_time(gameID, shotID, games_trimmed=None):
+    """
+    This function returns the period and time at which a shot was taken.
+    """
     if games_trimmed is None:
         print("Please build games_trimmed with the build_games_trimmed() function. \nPass the directory your game .json files are saved in as its argument.")
         return None
     return (games_trimmed[gameID][shotID]['about']['period'], games_trimmed[gameID][shotID]['about']['periodTime'])
 
-
+# TODO: Rewrite to be a sum of shot SADDs, build external dictionary of SADD values for each shot. (Also makes an offensive-SADD metric and overall-SADD metric easy to calculate.)
 def build_sadd(games_trimmed=None, directory='.', game_shifts=None, player_id_set=None, player_teams=None, team_set=None, team_games=None, player_id_games=None, coordinate_shots=None, grouped_data=None, player_pcts_and_groups=None):
+    """
+    This function returns a dictionary of shooter-adjusted distance differential values for each player.
+    """
     print("build_sadd(): Checking definitions of initial dictionaries", flush=True)
     if games_trimmed is None:
         print("Caution! Assuming game data is stored in the games subdirectory of the current working directory.\nIf this is not accurate, please call build_games_trimmed() with the correct diretory.")
@@ -1478,7 +1512,13 @@ def build_sadd(games_trimmed=None, directory='.', game_shifts=None, player_id_se
                 sadd[player]['sadd'] = sadd[player]['pct_diff_total']/sadd[player]['sadd_events']
     return sadd
 
+# The below function is deprecated by player_shifts, I think. If not, rewrite this to expect game_shifts. Function is to get defending players on ice during shot,
+# this is better done by checking whether shot was home or away and grabbing player IDs on the other team from game_shifts.
+# Note: Possible other dictionary intersecting games_trimmed and game_shifts? Players on ice at time of shot?
 def get_opposing_players(player, playerList, year, player_teams=None, games_trimmed=None, player_id_set=None):
+    """
+    This function returns a set of players from a given list which were not on the same team as a given player in a particular year.
+    """
     if games_trimmed is None:
         print("Caution! Assuming game data is stored in the games subdirectory of the current working directory.\nIf this is not accurate, please call build_games_trimmed() with the correct diretory.")
         games_trimmed = build_games_trimmed('./games/')
@@ -1497,7 +1537,7 @@ def get_opposing_players(player, playerList, year, player_teams=None, games_trim
             defenseSet.add(item)
     return defenseSet
 
-
+# TODO: Build game_shifts_trimmed which is a list of shots and players on ice for each team at time of shot, plus coordinates, whether it was a goal, expected shooting percent, and shooter overall shooting percent.
 
 
 # You can use these to build dictionaries!
