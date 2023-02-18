@@ -8,8 +8,11 @@ CREATE TABLE players (
     player_id INTEGER PRIMARY KEY,
     full_name TEXT, -- full name of the player
     personal_shot_ids INTEGER[] -- array of shot IDs the player was the shooter for
+    personal_goal_ids INTEGER[] -- array of goal IDs the player was the shooter for
     on_ice_shot_for_ids INTEGER[] -- array of shot IDs the player was on the ice for from the player's team
+    on_ice_goal_for_ids INTEGER[] -- array of goal IDs the player was on the ice for from the player's team
     on_ice_shot_against_ids INTEGER[] -- array of shot IDs the player was on the ice for from the other team
+    on_ice_goal_against_ids INTEGER[] -- array of goal IDs the player was on the ice for from the other team
 );
 
 CREATE TABLE games (
@@ -123,16 +126,28 @@ CREATE TABLE shot_locations (
     x_coordinate INTEGER, -- the x-coordinate of the shot location on the rink
     y_coordinate INTEGER, -- the y-coordinate of the shot location on the rink
     shot_ids INTEGER[], -- the IDs of the shots that occurred at this location
+    goal_ids INTEGER[], -- the IDs of the goals that occurred at this location
     PRIMARY KEY (x_coordinate, y_coordinate) -- primary key to ensure uniqueness of coordinates
 );
 
-
+CREATE TABLE player_shot_locations (
+    player_id INTEGER,
+    x_coordinate INTEGER,
+    y_coordinate INTEGER,
+    shots INTEGER,
+    goals INTEGER,
+    shooting_pct NUMERIC,
+    PRIMARY KEY (player_id, x_coordinate, y_coordinate)
+);
 
 -- Add foreign key to players
 ALTER TABLE players 
 ADD CONSTRAINT personal_shot_ids_fk FOREIGN KEY (personal_shot_ids) REFERENCES shots (shot_id),
+ADD CONSTRAINT personal_goal_ids_fk FOREIGN KEY (personal_goal_ids) REFERENCES goals (goal_id),
 ADD CONSTRAINT on_ice_shot_for_ids_fk FOREIGN KEY (on_ice_shot_for_ids) REFERENCES shots (shot_id),
+ADD CONSTRAINT on_ice_goal_for_ids_fk FOREIGN KEY (on_ice_goal_for_ids) REFERENCES goals (goal_id),
 ADD CONSTRAINT on_ice_shot_against_ids_fk FOREIGN KEY (on_ice_shot_against_ids) REFERENCES shots (shot_id);
+ADD CONSTRAINT on_ice_goal_against_ids_fk FOREIGN KEY (on_ice_goal_against_ids) REFERENCES goals (goal_id);
 
 -- Add foreign key to games
 ALTER TABLE games 
@@ -185,4 +200,44 @@ ADD CONSTRAINT goalie_id_fk FOREIGN KEY (goalie_id) REFERENCES players (player_i
 
 
 -- Add foreign key to shot_locations
-ALTER TABLE shot_locations ADD CONSTRAINT shot_ids_fk FOREIGN KEY (shot_ids) REFERENCES shots (shot_id);
+ALTER TABLE shot_locations 
+ADD CONSTRAINT shot_ids_fk FOREIGN KEY (shot_ids) REFERENCES shots (shot_id)
+ADD CONSTRAINT goal_ids_fk FOREIGN KEY (goal_ids) REFERENCES goals (goal_id);
+
+-- Add foreign key to player_shot_locations
+ALTER TABLE player_shot_locations
+ADD CONSTRAINT player_id_fk FOREIGN KEY (player_id) REFERENCES players (player_id) ON DELETE CASCADE;
+
+
+/* This code should be run after the tables are populated, and populates shot_locations with a shooting_pct column. Should probably be amended to return 0 for locations with less than n shots, but idk what n should be yet.
+-- Compute shooting percentage for each shot location
+UPDATE shot_locations
+SET shooting_pct = (
+    CASE
+        WHEN array_length(goal_ids, 1) > 0 THEN array_length(shot_ids, 1)::float / array_length(goal_ids, 1)::float
+        ELSE 0
+    END
+);
+*/
+
+/* This code should be run after the tables are populated, and populated player_shot_locations.
+INSERT INTO player_shot_locations (player_id, x_coordinate, y_coordinate, num_shots, num_goals, shooting_pct)
+SELECT 
+    p.player_id, 
+    sl.x_coordinate, 
+    sl.y_coordinate, 
+    COUNT(s.shot_id), 
+    COUNT(g.goal_id),
+    COUNT(g.goal_id)::FLOAT / COUNT(s.shot_id) AS shooting_pct
+FROM 
+    players p 
+    JOIN shots s ON p.personal_shot_ids @> ARRAY[s.shot_id] 
+    JOIN shot_locations sl ON s.x_coordinate = sl.x_coordinate AND s.y_coordinate = sl.y_coordinate
+    JOIN goals g ON s.shot_id = g.shot_id AND p.personal_goal_ids @> ARRAY[g.goal_id]
+GROUP BY 
+    p.player_id, 
+    sl.x_coordinate, 
+    sl.y_coordinate;
+*/
+
+
