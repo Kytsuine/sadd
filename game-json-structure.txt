@@ -1,0 +1,97 @@
+The following is the structure of a game .json file as retrieved from the https://statsapi.web.nhl.com/api/v1/game/[gameID]/feed/live endpoint.
+gamepk - one value, used as primary key for games. Referred to as gameID, game_id, game_ID, gamepk, etc.
+link - one value, API endpoint used to retrieve the page used.
+gameData{
+	game	{
+		pk - equals gamepk
+		season - full eight digit season identifier, eg. 20222023
+		type - Game type. Examples: R (regular season), PR (preseason)
+		}
+	status	{
+		codedGameState - integer representation of game state. When going through automatically, stop crawl at any number below 5, all of which are either in-progress or not yet played. (8 should be noted to return to, as it is scheduled with a time tbd. I'm not sure when this would be used.)
+		}
+	teams	{
+		away	{
+			id - team ID number
+			name - team name
+			link - team API link
+			venue	{
+				id - ID of the team's home venue
+				name - name of the team's home venue
+				link - API link to the team's home venue
+				}
+			abbreviation - team abbreviation
+			triCode - team triCode. Almost always same as abbreviation
+			division	{
+				id - ID of the team's division
+				name - name of the team's division
+				link - API link to the team's division
+					}
+			conference	{
+				id - ID of the team's conference
+				name - name of the team's conference
+				link - API link to the team's division
+					}
+			}
+		home{ - same structure as away{}. }
+		}
+	players	{
+		[playerID]	{
+			id - player ID number
+			fullName - player's full name
+			link - API link to the player
+				}
+		}
+	venue	{
+		name - name of the arena the game is played in
+		link - API link of the arena. Does not work for arenas that have been renamed.
+		}
+	}
+liveData	{
+	plays	{
+		allPlays	{
+			[playNumber]	{
+				players	{
+					[playerNumber]	{
+						player	{
+							id - playerID
+							}
+						playerType - the role the player played in the play
+							}
+					}
+				result	{
+					event - The type of play
+					}
+				about	{
+					eventIdx - the index of the event within the game
+					period - the period in which the event happened
+					periodTime - the time of the event within the period
+					}
+				coordinates	{
+					x - the x coordinate of the event
+					y - the y coordinate of the event
+						}
+					}
+				}
+		}
+	boxscore	{
+		officials	{
+			[officialNumber]	{
+				official	{
+					id - the ID of the official
+					fullName - name of the official
+					link - API link to the official
+						}
+				officialType - role played by the official (eg "Referee", "Linesman")
+						}
+				}
+			}
+	decisions	{
+		winner	{
+			id - the player_id of the winning goalie (reference with team roster to find team)
+			}
+		loser	{
+			id - the player_id of the losing goalie
+			}
+			}
+		}

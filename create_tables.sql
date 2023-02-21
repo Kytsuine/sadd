@@ -26,7 +26,6 @@ CREATE TABLE games (
 
 CREATE TABLE game_extra_data (
     game_id INTEGER PRIMARY KEY, -- unique identifier for the game
-    season INTEGER, -- season in which the game was played
     game_type INTEGER, -- type of the game (e.g. regular season, playoffs, etc.)
     link TEXT, -- link to the game summary on the NHL website
     venue_id INTEGER, -- unique identifier for the arena where the game was played
@@ -35,37 +34,9 @@ CREATE TABLE game_extra_data (
     linesmen INTEGER[], -- array of unique identifiers for the linesmen officiating the game
     winning_team_id INTEGER, -- unique identifier for the winning team
     losing_team_id INTEGER, -- unique identifier for the losing team
-    first_star_id INTEGER, -- unique identifier for the first star of the game
-    second_star_id INTEGER, -- unique identifier for the second star of the game
-    third_star_id INTEGER, -- unique identifier for the third star of the game
     periods INTEGER, -- number of periods played in the game
     home_score INTEGER, -- number of goals scored by the home team
     away_score INTEGER, -- number of goals scored by the away team
-    home_coach_id INTEGER, -- unique identifier for the coach of the home team
-    away_coach_id INTEGER, -- unique identifier for the coach of the away team
-    home_scratches INTEGER[], -- array of unique identifiers for the scratched players on the home team
-    away_scratches INTEGER[], -- array of unique identifiers for the scratched players on the away team
-    home_penalty_minutes INTEGER, -- total number of penalty minutes for the home team
-    away_penalty_minutes INTEGER, -- total number of penalty minutes for the away team
-    home_power_play_goals INTEGER, -- number of power play goals scored by the home team
-    away_power_play_goals INTEGER, -- number of power play goals scored by the away team
-    home_power_play_opportunities INTEGER, -- number of power play opportunities for the home team
-    away_power_play_opportunities INTEGER, -- number of power play opportunities for the away team
-    home_blocked_shots INTEGER, -- number of blocked shots by the home team
-    away_blocked_shots INTEGER, -- number of blocked shots by the away team
-    home_takeaways INTEGER, -- number of takeaways by the home team
-    away_takeaways INTEGER, -- number of takeaways by the away team
-    home_giveaways INTEGER, -- number of giveaways by the home team
-    away_giveaways INTEGER, -- number of giveaways by the away team
-    home_hits INTEGER, -- number of hits by the home team
-    away_hits INTEGER -- number of hits by the away team
-);
-
-
-
-CREATE TABLE coaches (
-    coach_id SERIAL PRIMARY KEY, -- Unique identifier for the coach.
-    name TEXT -- The name of the coach.
 );
 
 
@@ -93,6 +64,7 @@ CREATE TABLE plays (
     x_coordinate INTEGER, -- X-coordinate of the location on the rink where the play occurred
     y_coordinate INTEGER, -- Y-coordinate of the location on the rink where the play occurred
     team_id INTEGER -- ID of the team involved in the play
+    game_play_idx INTEGER -- Index number of the play within the game
 );
 
 
@@ -105,7 +77,7 @@ CREATE TABLE shots (
     goalie_id INTEGER, -- the goalie who faced the shot
     x_coordinate INTEGER, -- the x-coordinate of the shot location on the rink
     y_coordinate INTEGER, -- the y-coordinate of the shot location on the rink
-    CONSTRAINT shot_result_check CHECK (result IN ('Shot', 'Goal')) -- ensures that the result of the shot is either a shot or a goal
+
 );
 
 CREATE TABLE goals (
@@ -118,7 +90,7 @@ CREATE TABLE goals (
     goalie_id INTEGER, -- the goalie who allowed the goal
     x_coordinate INTEGER, -- the x-coordinate of the goal location on the rink
     y_coordinate INTEGER, -- the y-coordinate of the goal location on the rink
-    CONSTRAINT goal_result_check CHECK (result = 'Goal') -- ensures that the result of the goal is a goal
+
 );
 
 
@@ -139,6 +111,46 @@ CREATE TABLE player_shot_locations (
     shooting_pct NUMERIC,
     PRIMARY KEY (player_id, x_coordinate, y_coordinate)
 );
+
+-- Create functions to check values for shots and goals tables
+CREATE OR REPLACE FUNCTION validate_shot()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM plays WHERE play_id = NEW.play_id AND result IN ('Shot', 'Goal')
+  ) THEN
+    RAISE EXCEPTION 'Not a shot', NEW.play_id;
+  END IF;
+  
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION validate_goal()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM plays WHERE play_id = NEW.play_id AND result = 'Goal'
+  ) THEN
+    RAISE EXCEPTION 'Not a goal', NEW.play_id;
+  END IF;
+  
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+-- Create triggers to implement above functions
+CREATE TRIGGER validate_shot_trigger
+BEFORE INSERT OR UPDATE ON shots
+FOR EACH ROW
+EXECUTE FUNCTION validate_shot();
+
+CREATE TRIGGER validate_goal_trigger
+BEFORE INSERT OR UPDATE ON goals
+FOR EACH ROW
+EXECUTE FUNCTION validate_goal();
+
 
 -- Add foreign key to players
 ALTER TABLE players 
@@ -163,15 +175,9 @@ ADD CONSTRAINT game_id_fk FOREIGN KEY (game_id) REFERENCES games (game_id) ON DE
 ADD CONSTRAINT venue_id_fk FOREIGN KEY (venue_id) REFERENCES venues (venue_id) ON DELETE SET NULL,
 ADD CONSTRAINT winning_team_id_fk FOREIGN KEY (winning_team_id) REFERENCES teams (team_id) ON DELETE SET NULL,
 ADD CONSTRAINT losing_team_id_fk FOREIGN KEY (losing_team_id) REFERENCES teams (team_id) ON DELETE SET NULL,
-ADD CONSTRAINT first_star_id_fk FOREIGN KEY (first_star_id) REFERENCES players (player_id) ON DELETE SET NULL,
-ADD CONSTRAINT second_star_id_fk FOREIGN KEY (second_star_id) REFERENCES players (player_id) ON DELETE SET NULL,
-ADD CONSTRAINT third_star_id_fk FOREIGN KEY (third_star_id) REFERENCES players (player_id) ON DELETE SET NULL,
-ADD CONSTRAINT home_coach_id_fk FOREIGN KEY (home_coach_id) REFERENCES coaches (coach_id) ON DELETE SET NULL,
-ADD CONSTRAINT away_coach_id_fk FOREIGN KEY (away_coach_id) REFERENCES coaches (coach_id) ON DELETE SET NULL,
 ADD CONSTRAINT referees_fk FOREIGN KEY (referees) REFERENCES officials (official_id) ON DELETE SET NULL,
-ADD CONSTRAINT linesmen_fk FOREIGN KEY (linesmen) REFERENCES officials (official_id) ON DELETE SET NULL,
-ADD CONSTRAINT home_scratches_fk FOREIGN KEY (home_scratches) REFERENCES players (player_id),
-ADD CONSTRAINT away_scratches_fk FOREIGN KEY (away_scratches) REFERENCES players (player_id);
+ADD CONSTRAINT linesmen_fk FOREIGN KEY (linesmen) REFERENCES officials (official_id) ON DELETE SET NULL;
+
 
 -- Add foreign key to plays
 ALTER TABLE plays
