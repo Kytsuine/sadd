@@ -112,6 +112,17 @@ CREATE TABLE player_shot_locations (
     PRIMARY KEY (player_id, x_coordinate, y_coordinate)
 );
 
+CREATE TABLE shifts (
+	shift_id SERIAL PRIMARY KEY, -- Internal shift ID
+	nhl_shift_id INTEGER, -- ID from NHL shift API; not entirely certain it's unique
+	game_id INTEGER, -- the game in which the shift was played
+	player_id INTEGER, -- the player who played the shift
+	team_id INTEGER, -- the team for which the shift was played
+	period INTEGER, -- the player in which the shift was played
+	start_time TIME, -- the time in the period at which the shift started
+	end_time TIME -- the time in the period at which the shift ended
+);
+
 -- Create functions to check values for shots and goals tables
 CREATE OR REPLACE FUNCTION validate_shot()
 RETURNS TRIGGER AS $$
@@ -212,6 +223,12 @@ ADD CONSTRAINT goal_ids_fk FOREIGN KEY (goal_ids) REFERENCES goals (goal_id);
 
 -- Add foreign key to player_shot_locations
 ALTER TABLE player_shot_locations
+ADD CONSTRAINT player_id_fk FOREIGN KEY (player_id) REFERENCES players (player_id) ON DELETE CASCADE;
+
+-- Add foreign key to shifts
+ALTER TABLE shifts
+ADD CONSTRAINT game_id_fk FOREIGN KEY (game_id) REFERENCES games (game_id) ON DELETE CASCADE,
+ADD CONSTRAINT team_id_fk FOREIGN KEY (team_id) REFERENCES teams (team_id) ON DELETE SET NULL,
 ADD CONSTRAINT player_id_fk FOREIGN KEY (player_id) REFERENCES players (player_id) ON DELETE CASCADE;
 
 

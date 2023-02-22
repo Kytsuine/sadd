@@ -8,6 +8,5 @@ data	{
 		period - the period in which the shift was played. Integer.
 		startTime - when the shift started. String.
 		endTime - when the shift ended. String.
-		duration - duration of the shift. String.
 			}
 	}
