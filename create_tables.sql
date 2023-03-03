@@ -243,7 +243,7 @@ SET shooting_pct = (
 );
 */
 
-/* This code should be run after the tables are populated, and populated player_shot_locations.
+/* This code should be run after the tables are populated, and populates player_shot_locations.
 INSERT INTO player_shot_locations (player_id, x_coordinate, y_coordinate, num_shots, num_goals, shooting_pct)
 SELECT 
     p.player_id, 

@@ -3,48 +3,38 @@ gamepk - one value, used as primary key for games. Referred to as gameID, game_i
 link - one value, API endpoint used to retrieve the page used.
 gameData{
 	game	{
-		pk - equals gamepk
-		season - full eight digit season identifier, eg. 20222023
-		type - Game type. Examples: R (regular season), PR (preseason)
+		pk - equals gamepk | games/game_id; game_extra_data/game_id; CONDITIONAL [plays/game_id; shots/game_id; goals/game_id]
+		type - Game type. Examples: R (regular season), PR (preseason) -- validate, not saved.
 		}
 	status	{
-		codedGameState - integer representation of game state. When going through automatically, stop crawl at any number below 5, all of which are either in-progress or not yet played. (8 should be noted to return to, as it is scheduled with a time tbd. I'm not sure when this would be used.)
+		codedGameState - integer representation of game state. When going through automatically, stop crawl at any number below 5, all of which are either in-progress or not yet played. (8 should be noted to return to, as it is scheduled with a time tbd. I'm not sure when this would be used.) -- validate, not saved.
 		}
 	teams	{
 		away	{
-			id - team ID number
-			name - team name
-			link - team API link
+			id - team ID number | teams/team_id; games/away_team_id; conditional game_extra_data/[winning|losing]_team_id
+			name - team name | teams/name
 			venue	{
-				id - ID of the team's home venue
-				name - name of the team's home venue
-				link - API link to the team's home venue
+				name - name of the team's home venue | venues/name
 				}
-			abbreviation - team abbreviation
-			triCode - team triCode. Almost always same as abbreviation
-			division	{
-				id - ID of the team's division
-				name - name of the team's division
-				link - API link to the team's division
-					}
-			conference	{
-				id - ID of the team's conference
-				name - name of the team's conference
-				link - API link to the team's division
-					}
+			abbreviation - team abbreviation | teams/abbreviation
 			}
-		home{ - same structure as away{}. }
+		home	{
+			id - team ID number | teams/team_id; games/home_team_id; conditional game_extra_data/[winning|losing]_team_id
+			name - team name | teams/name
+			venue	{
+				name - name of the team's home venue | venues/name
+				}
+			abbreviation - team abbreviation | teams/abbreviation
+			}
 		}
 	players	{
 		[playerID]	{
-			id - player ID number
-			fullName - player's full name
-			link - API link to the player
+			id - player ID number | players/player_id
+			fullName - player's full name | players/full_name
 				}
 		}
 	venue	{
-		name - name of the arena the game is played in
-		link - API link of the arena. Does not work for arenas that have been renamed.
+		name - name of the arena the game is played in | conditional match to game_extra_data/venue_id against venues/name
 		}
 	}
 liveData	{
@@ -54,23 +44,26 @@ liveData	{
 				players	{
 					[playerNumber]	{
 						player	{
-							id - playerID
+							id - playerID | APPEND TO plays/player_ids; CONDITIONAL [shots/shooter_id; shots/goalie_id; goals/shooter_id; goals/goalie_id]
 							}
-						playerType - the role the player played in the play
+						playerType - the role the player played in the play | condition for id
 							}
 					}
 				result	{
-					event - The type of play
+					event - The type of play | plays/result, conditional for coordinates
 					}
 				about	{
-					eventIdx - the index of the event within the game
-					period - the period in which the event happened
-					periodTime - the time of the event within the period
+					eventIdx - the index of the event within the game | plays/game_play_idx
+					period - the period in which the event happened | plays/period
+					periodTime - the time of the event within the period | plays/period_time
 					}
 				coordinates	{
-					x - the x coordinate of the event
-					y - the y coordinate of the event
+					x - the x coordinate of the event | plays/x_coordinate; CONDITIONAL [shots/x_coordinate; goals/y_coordinate]
+					y - the y coordinate of the event | plays/y_coordinate; CONDITIONAL [shots/y_coordinate; goals/y_coordinate]
 						}
+				team	{
+					id - the ID of the team making the play (not always present) | CONDITIONAL ON EXISTENCE plays/team_id; CONDITIONAL ON EXISTENCE AND RESULT [shots/team_id; goals/team_id]
+					}
 					}
 				}
 		}
