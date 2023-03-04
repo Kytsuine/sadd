@@ -32,8 +32,6 @@ CREATE TABLE game_extra_data (
     date TIMESTAMP, -- date and time when the game was played
     referees INTEGER[], -- array of unique identifiers for the referees officiating the game
     linesmen INTEGER[], -- array of unique identifiers for the linesmen officiating the game
-    winning_team_id INTEGER, -- unique identifier for the winning team
-    losing_team_id INTEGER, -- unique identifier for the losing team
     periods INTEGER, -- number of periods played in the game
     home_score INTEGER, -- number of goals scored by the home team
     away_score INTEGER, -- number of goals scored by the away team
@@ -59,8 +57,6 @@ CREATE TABLE plays (
     result TEXT, -- Description of the play's outcome
     period INTEGER, -- Period in which the play occurred (1-3, OT)
     period_time TIME, -- Time on the game clock when the play occurred
-    goals_away INTEGER, -- Number of goals scored by the away team before the play
-    goals_home INTEGER, -- Number of goals scored by the home team before the play
     x_coordinate INTEGER, -- X-coordinate of the location on the rink where the play occurred
     y_coordinate INTEGER, -- Y-coordinate of the location on the rink where the play occurred
     team_id INTEGER -- ID of the team involved in the play
@@ -184,8 +180,6 @@ ALTER TABLE games
 ALTER TABLE game_extra_data
 ADD CONSTRAINT game_id_fk FOREIGN KEY (game_id) REFERENCES games (game_id) ON DELETE CASCADE,
 ADD CONSTRAINT venue_id_fk FOREIGN KEY (venue_id) REFERENCES venues (venue_id) ON DELETE SET NULL,
-ADD CONSTRAINT winning_team_id_fk FOREIGN KEY (winning_team_id) REFERENCES teams (team_id) ON DELETE SET NULL,
-ADD CONSTRAINT losing_team_id_fk FOREIGN KEY (losing_team_id) REFERENCES teams (team_id) ON DELETE SET NULL,
 ADD CONSTRAINT referees_fk FOREIGN KEY (referees) REFERENCES officials (official_id) ON DELETE SET NULL,
 ADD CONSTRAINT linesmen_fk FOREIGN KEY (linesmen) REFERENCES officials (official_id) ON DELETE SET NULL;
 

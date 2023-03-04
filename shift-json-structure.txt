@@ -1,12 +1,12 @@
 The following is the structure of a game .json file as retrieved from the https://statsapi.web.nhl.com/api/v1/game/[gameID]/feed/live endpoint.
 data	{
 	[shift_idx]	{
-		id - globally unique shift ID. Integer.
-		gameId - game_id. Integer.
-		playerId - the player who played the shift. Integer.
-		teamId - the ID of the team for which the shift was played. Integer.	
-		period - the period in which the shift was played. Integer.
-		startTime - when the shift started. String.
-		endTime - when the shift ended. String.
+		id - globally unique shift ID. Integer. | shifts/nhl_shift_id
+		gameId - game_id. Integer. | shifts/game_id
+		playerId - the player who played the shift. Integer. | shifts/player_id
+		teamId - the ID of the team for which the shift was played. Integer. | shifts/team_id	
+		period - the period in which the shift was played. Integer. | shifts/period
+		startTime - when the shift started. String. | shifts/start_time
+		endTime - when the shift ended. String. | shifts/end_time
 			}
 	}
