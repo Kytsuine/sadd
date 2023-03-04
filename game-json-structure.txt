@@ -71,20 +71,11 @@ liveData	{
 		officials	{
 			[officialNumber]	{
 				official	{
-					id - the ID of the official
-					fullName - name of the official
-					link - API link to the official
+					id - the ID of the official | officials/official_id
+					fullName - name of the official | officials/name
+					link - API link to the official | officials/link
 						}
-				officialType - role played by the official (eg "Referee", "Linesman")
 						}
 				}
-			}
-	decisions	{
-		winner	{
-			id - the player_id of the winning goalie (reference with team roster to find team)
-			}
-		loser	{
-			id - the player_id of the losing goalie
-			}
-			}
-		}
+			} 
+	}
