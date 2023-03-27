@@ -73,6 +73,7 @@ CREATE TABLE shots (
     goalie_id INTEGER, -- the goalie who faced the shot
     x_coordinate INTEGER, -- the x-coordinate of the shot location on the rink
     y_coordinate INTEGER, -- the y-coordinate of the shot location on the rink
+    game_play_idx INTEGER -- Index number of the play within the game
 
 );
 
@@ -86,6 +87,7 @@ CREATE TABLE goals (
     goalie_id INTEGER, -- the goalie who allowed the goal
     x_coordinate INTEGER, -- the x-coordinate of the goal location on the rink
     y_coordinate INTEGER, -- the y-coordinate of the goal location on the rink
+    game_play_idx INTEGER -- Index number of the play within the game
 
 );
 

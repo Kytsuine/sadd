@@ -160,100 +160,112 @@ def insert_shifts(shift_data, conn):
     cur.close()
     
 def insert_plays(game_data, conn):
-    # Extract necessary game data from the JSON game_data
-    game_id = game_data['gameData']['game']['pk']
+    game_id = game_data['gamePk']
+    plays_data = game_data['liveData']['plays']['allPlays']
 
-    # Connect to the database and create a cursor
     cur = conn.cursor()
 
-    # Check if the plays for the game exist in the plays table
-    check_query = "SELECT 1 FROM plays WHERE game_id = %s;"
-    cur.execute(check_query, (game_id,))
+    for play in plays_data:
+        event_index = play['about']['eventIdx']
+        result = play['result']['description']
 
-    # If the plays for the game don't exist, insert them into the plays table
-    if cur.rowcount == 0:
-        # Iterate through all plays in the game_data
-        for period in game_data['liveData']['plays']['allPlays']:
-            play_id = period['about']['eventId']
-            play_period = period['about']['period']
-            play_time = period['about']['periodTime']
-            play_description = period['result']['description']
+        x_coordinate = play['coordinates'].get('x', None)
+        y_coordinate = play['coordinates'].get('y', None)
 
+        team_id = None
+        if 'team' in play:
+            team_id = play['team']['id']
+
+        players_data = play.get('players', [])
+        player_ids = [player_data['player']['id'] for player_data in players_data]
+
+        check_query = "SELECT 1 FROM plays WHERE game_id = %s AND event_index = %s;"
+        cur.execute(check_query, (game_id, event_index))
+
+        if cur.rowcount == 0:
             insert_query = """INSERT INTO plays
-                              (game_id, play_id, play_period, play_time, play_description)
-                              VALUES (%s, %s, %s, %s, %s);"""
-            cur.execute(insert_query, (game_id, play_id, play_period, play_time, play_description))
+                              (game_id, event_index, result, x_coordinate, y_coordinate, team_id, player_ids)
+                              VALUES (%s, %s, %s, %s, %s, %s, %s);"""
+            cur.execute(insert_query, (game_id, event_index, result, x_coordinate, y_coordinate, team_id, player_ids))
             conn.commit()
 
-    # Close the cursor
     cur.close()
+
 
     
 def insert_shots(game_data, conn):
-    # Extract necessary game data from the JSON game_data
-    game_id = game_data['gameData']['game']['pk']
+    game_id = game_data['gamePk']
+    plays_data = game_data['liveData']['plays']['allPlays']
 
-    # Connect to the database and create a cursor
     cur = conn.cursor()
 
-    # Check if the shots for the game exist in the shots table
-    check_query = "SELECT 1 FROM shots WHERE game_id = %s;"
-    cur.execute(check_query, (game_id,))
+    for play in plays_data:
+        if play['result']['eventTypeId'] in ['SHOT', 'GOAL']:
+            event_index = play['about']['eventIdx']
 
-    # If the shots for the game don't exist, insert them into the shots table
-    if cur.rowcount == 0:
-        # Iterate through all plays in the game_data
-        for period in game_data['liveData']['plays']['allPlays']:
-            play_type = period['result']['eventTypeId']
-            
-            # Check if the play is a shot type
-            if play_type in ['SHOT', 'MISSED_SHOT', 'BLOCKED_SHOT', 'GOAL']:
-                play_id = period['about']['eventId']
-                play_period = period['about']['period']
-                play_time = period['about']['periodTime']
-                play_description = period['result']['description']
+            team_id = play['team']['id']
+            x_coordinate = play['coordinates']['x']
+            y_coordinate = play['coordinates']['y']
 
-                insert_query = """INSERT INTO shots
-                                  (game_id, play_id, play_period, play_time, play_description)
-                                  VALUES (%s, %s, %s, %s, %s);"""
-                cur.execute(insert_query, (game_id, play_id, play_period, play_time, play_description))
-                conn.commit()
+            players_data = play.get('players', [])
+            shooter_id = None
+            goalie_id = None
 
-    # Close the cursor
+            for player_data in players_data:
+                if player_data['playerType'] == 'Shooter' or player_data['playerType'] == 'Scorer':
+                    shooter_id = player_data['player']['id']
+                elif player_data['playerType'] == 'Goalie':
+                    goalie_id = player_data['player']['id']
+
+            check_query = "SELECT play_id FROM plays WHERE game_id = %s AND event_index = %s;"
+            cur.execute(check_query, (game_id, event_index))
+            play_id = cur.fetchone()[0]
+
+            insert_query = """INSERT INTO shots
+                              (play_id, game_id, team_id, shooter_id, goalie_id, x_coordinate, y_coordinate, game_play_idx)
+                              VALUES (%s, %s, %s, %s, %s, %s, %s, %s);"""
+            cur.execute(insert_query, (play_id, game_id, team_id, shooter_id, goalie_id, x_coordinate, y_coordinate, event_index))
+            conn.commit()
+
     cur.close()
 
 def insert_goals(game_data, conn):
-    # Extract necessary game data from the JSON game_data
-    game_id = game_data['gameData']['game']['pk']
+    game_id = game_data['gamePk']
+    plays_data = game_data['liveData']['plays']['allPlays']
 
-    # Connect to the database and create a cursor
     cur = conn.cursor()
 
-    # Check if the goals for the game exist in the goals table
-    check_query = "SELECT 1 FROM goals WHERE game_id = %s;"
-    cur.execute(check_query, (game_id,))
+    for play in plays_data:
+        if play['result']['eventTypeId'] == 'GOAL':
+            event_index = play['about']['eventIdx']
 
-    # If the goals for the game don't exist, insert them into the goals table
-    if cur.rowcount == 0:
-        # Iterate through all plays in the game_data
-        for period in game_data['liveData']['plays']['allPlays']:
-            play_type = period['result']['eventTypeId']
-            
-            # Check if the play is a goal
-            if play_type == 'GOAL':
-                play_id = period['about']['eventId']
-                play_period = period['about']['period']
-                play_time = period['about']['periodTime']
-                play_description = period['result']['description']
+            team_id = play['team']['id']
+            x_coordinate = play['coordinates']['x']
+            y_coordinate = play['coordinates']['y']
 
-                insert_query = """INSERT INTO goals
-                                  (game_id, play_id, play_period, play_time, play_description)
-                                  VALUES (%s, %s, %s, %s, %s);"""
-                cur.execute(insert_query, (game_id, play_id, play_period, play_time, play_description))
-                conn.commit()
+            players_data = play.get('players', [])
+            shooter_id = None
+            goalie_id = None
 
-    # Close the cursor
+            for player_data in players_data:
+                if player_data['playerType'] == 'Scorer':
+                    shooter_id = player_data['player']['id']
+                elif player_data['playerType'] == 'Goalie':
+                    goalie_id = player_data['player']['id']
+
+            check_query = "SELECT play_id, shot_id FROM shots WHERE game_id = %s AND event_index = %s;"
+            cur.execute(check_query, (game_id, event_index))
+            play_id = cur.fetchone()[0]
+            shot_id = cur.fetchone()[1]
+
+            insert_query = """INSERT INTO shots
+                              (play_id, game_id, shot_id, team_id, shooter_id, goalie_id, x_coordinate, y_coordinate, game_play_idx)
+                              VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);"""
+            cur.execute(insert_query, (play_id, game_id, shot_id, team_id, shooter_id, goalie_id, x_coordinate, y_coordinate, event_index))
+            conn.commit()
+
     cur.close()
+
 
 def insert_venues(data, conn):
     venue_name = data['gameData']['venue']['name']
