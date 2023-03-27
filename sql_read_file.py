@@ -1,6 +1,8 @@
 import psycopg2
 import os
 import json
+from psycopg2.extras import Json
+
 
 # Define function to insert game data
 def insert_game(game_data, conn):
@@ -8,6 +10,8 @@ def insert_game(game_data, conn):
     game_status = game_data['gameData']['status']['codedGameState']
     home_team_id = game_data['gameData']['teams']['home']['id']
     away_team_id = game_data['gameData']['teams']['away']['id']
+    away_roster = [player_data['person']['id'] for player_data in game_data['liveData']['boxscore']['teams']['away']['players'].values()]
+    home_roster = [player_data['person']['id'] for player_data in game_data['liveData']['boxscore']['teams']['home']['players'].values()]
 
     cur = conn.cursor()
 
@@ -18,12 +22,13 @@ def insert_game(game_data, conn):
     # If the game doesn't exist and the game status is greater than 5, insert it into the games table
     if cur.rowcount == 0 and int(game_status) > 5:
         insert_query = """INSERT INTO games
-                          (game_id, home_team_id, away_team_id)
-                          VALUES (%s, %s, %s);"""
-        cur.execute(insert_query, (game_id, home_team_id, away_team_id))
+                          (game_id, home_team_id, away_team_id, away_roster, home_roster)
+                          VALUES (%s, %s, %s, %s, %s);"""
+        cur.execute(insert_query, (game_id, home_team_id, away_team_id, Json(away_roster), Json(home_roster)))
         conn.commit()
 
     cur.close()
+
 
 def insert_game_extra_data(game_data, conn):
     game_id = game_data['gamePk']
@@ -139,21 +144,22 @@ def insert_shifts(shift_data, conn):
     for shift in shift_data:
         game_id = shift['gameId']
         player_id = shift['playerId']
-        shift_id = shift['shiftId']
+        nhl_shift_id = shift['id']
+        team_id = shift['teamId']
         period = shift['period']
         start_time = shift['startTime']
         end_time = shift['endTime']
 
         # Check if the shift exists in the shifts table
-        check_query = "SELECT 1 FROM shifts WHERE game_id = %s AND shift_id = %s;"
-        cur.execute(check_query, (game_id, shift_id))
+        check_query = "SELECT 1 FROM shifts WHERE nhl_shift_id = %s;"
+        cur.execute(check_query, (nhl_shift_id))
 
         # If the shift doesn't exist, insert it into the shifts table
         if cur.rowcount == 0:
             insert_query = """INSERT INTO shifts
-                              (game_id, player_id, shift_id, period, start_time, end_time)
+                              (game_id, player_id, nhl_shift_id, team_id, period, start_time, end_time)
                               VALUES (%s, %s, %s, %s, %s, %s);"""
-            cur.execute(insert_query, (game_id, player_id, shift_id, period, start_time, end_time))
+            cur.execute(insert_query, (game_id, player_id, nhl_shift_id, team_id, period, start_time, end_time))
             conn.commit()
 
     # Close the cursor
